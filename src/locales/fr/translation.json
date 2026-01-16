@@ -1,0 +1,138 @@
+{
+  "header": {
+    "requestCatalog": "Demander un catalogue",
+    "samples": "Échantillons",
+    "about": "À propos",
+    "products": "Produits",
+    "project": "Projet",
+    "contact": "Contact"
+  },
+  "hero": {
+    "tagline": "Mycologie en biotechnologie",
+    "title": {
+      "before": "Là où",
+      "mycology": "la mycologie",
+      "middle": "rencontre",
+      "biotech": "la biotechnologie"
+    },
+    "description": "Des actifs premium à base de champignons conçus pour les formulations cosmétiques. Extraits de qualité cosmétique, approvisionnement constant et documentation prête pour le B2B.",
+    "explore": "Découvrir les produits",
+    "contact": "Nous contacter",
+    "footer": "Approvisionnement B2B • Échantillons disponibles • Développement sur mesure",
+    "pills": ["Qualité cosmétique", "Eau/Glycérine", "Ferments", "B2B"],
+    "deliverTitle": "Ce que MUSHEAS propose",
+    "deliverText": "Une gamme ciblée d’actifs inspirés de la biotechnologie : extraits de champignons et ingrédients issus de la fermentation, présentés avec une identité premium et pensés pour faciliter la formulation.",
+    "features": [
+      ["Documentation", "Structure prête TDS / COA / SDS pour le B2B."],
+      ["Stabilité", "Stratégie de conservation et cohérence des lots."],
+      [
+        "Échantillons",
+        "Échantillons de 30 ml pour laboratoires et fabricants."
+      ],
+      ["Sur mesure", "Ratios, concentrations et branding personnalisés."]
+    ]
+  },
+  "products": {
+    "title": "Nos produits",
+    "subtitle": "Des actifs et ferments innovants à base de champignons, conçus pour s’intégrer aux formulations cosmétiques modernes.",
+    "quote": "Demander un devis",
+    "tds": "Demander la fiche technique",
+    "samples": "Échantillonsp"
+  },
+  "project": {
+    "title": "Projet",
+    "subtitle": "Une présentation B2B claire de votre processus de laboratoire et du suivi de production. Conçue pour la crédibilité et l’évolutivité.",
+
+    "leftTitle": "Du laboratoire aux actifs prêts à formuler",
+    "leftText": "MUSHEAS associe des processus rigoureux d’extraction et de fermentation à une présentation cohérente pour les fabricants de cosmétiques. Cette maquette met en valeur une identité premium : bleu sarcelle et or, mise en page minimaliste et sections B2B claires.",
+
+    "ticks": [
+      {
+        "title": "Logique des lots",
+        "desc": "Lots traçables, points de contrôle qualité et livrables cohérents."
+      },
+      {
+        "title": "Prêt pour le B2B",
+        "desc": "Pages produit claires, flux de demande et message centré sur la documentation."
+      },
+      {
+        "title": "Système de marque",
+        "desc": "Une ligne produit unifiée : extraits et ferments sous une seule identité premium."
+      }
+    ],
+
+    "rightTitle": "Points clés",
+    "rightText": "Ajoutez vos vraies photos de laboratoire, les téléchargements COA/TDS et des formulaires de contact. Cette mise en page est conçue pour transformer les réunions fabricants en demandes d’échantillons.",
+
+    "minis": [
+      {
+        "title": "Histoire principale",
+        "desc": "Une phrase : « Là où la mycologie rencontre la biotechnologie. »"
+      },
+      {
+        "title": "Grille produits",
+        "desc": "Une gamme de 4 actifs avec des cartes propres et des boutons CTA."
+      },
+      {
+        "title": "Docs",
+        "desc": "Emplacements pour les liens TDS / SDS / COA."
+      },
+      {
+        "title": "Contact",
+        "desc": "WhatsApp/téléphone/email directs pour le flux B2B en Algérie."
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Envoyez une demande d’échantillons, de tarifs ou de documentation technique. Nous vous répondrons rapidement.",
+
+    "companyTitle": "Entreprise & Représentant",
+    "companyTip": "Astuce : pour des documents prêts à l’impression, ajoutez des liens PDF téléchargeables (TDS / SDS / COA) à côté de chaque produit.",
+
+    "formTitle": "Envoyer un message",
+    "namePlaceholder": "Votre nom / entreprise",
+    "messagePlaceholder": "Dites-nous ce dont vous avez besoin : échantillons, tarifs, TDS, extraction personnalisée...",
+    "send": "Envoyer la demande",
+    "copy": "Copier l’email",
+    "formNote": "Ce formulaire de démonstration n’envoie pas d’e-mails. Connectez-le plus tard à votre backend (Supabase, Formspree ou votre API).",
+
+    "labels": {
+      "company": "Entreprise",
+      "name": "Nom",
+      "role": "Fonction",
+      "phone": "Téléphone",
+      "email": "Email"
+    }
+  },
+  "footer": {
+    "slogan": "Là où la mycologie rencontre la biotechnologie",
+    "backToTop": "Haut de page",
+    "products": "Produits"
+  },
+  "requestDialog": {
+    "title": "Demande d’information",
+    "subtitle": "Veuillez fournir vos informations professionnelles afin que nous puissions répondre précisément à votre demande.",
+
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "company": "Entreprise / Nom du laboratoire",
+      "position": "Poste / Fonction",
+      "phone": "Numéro de téléphone",
+      "email": "Adresse e-mail"
+    },
+
+    "actions": {
+      "submit": "Envoyer la demande",
+      "cancel": "Annuler"
+    },
+
+    "privacy": "Vos informations sont utilisées uniquement pour un contact professionnel concernant les échantillons, les tarifs ou la documentation.",
+
+    "snackbar": {
+      "success": "Demande envoyée avec succès",
+      "error": "Une erreur est survenue. Veuillez réessayer."
+    }
+  }
+}

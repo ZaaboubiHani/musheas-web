@@ -1,0 +1,135 @@
+{
+  "header": {
+    "requestCatalog": "Request Catalog",
+    "samples": "Samples",
+    "about": "About",
+    "products": "Products",
+    "project": "Project",
+    "contact": "Contact"
+  },
+  "hero": {
+    "tagline": "Mycology in Biotechnology",
+    "title": {
+      "before": "Where",
+      "mycology": "Mycology",
+      "middle": "Meets",
+      "biotech": "Biotechnology"
+    },
+    "description": "Premium mushroom-based actives designed for cosmetic formulations. Cosmetic-grade extracts, consistent sourcing, and B2B-ready documentation.",
+    "explore": "Explore Products",
+    "contact": "Contact Us",
+    "footer": "B2B supply • Samples available • Custom development on request",
+    "pills": ["Cosmetic Grade", "Water/Glycerin", "Ferments", "B2B"],
+    "deliverTitle": "What MUSHEAS delivers",
+    "deliverText": "A focused line of biotech-inspired actives: mushroom extracts and fermentation-derived ingredients, presented with a premium identity and formulation-friendly positioning.",
+    "features": [
+      ["Documentation", "TDS / COA / SDS-ready structure for B2B."],
+      ["Stability", "Preservation strategy & batch consistency."],
+      ["Sampling", "30 ml samples for labs & manufacturers."],
+      ["Custom", "Custom ratios, concentration & branding."]
+    ]
+  },
+  "products": {
+    "title": "Our Products",
+    "subtitle": "Innovative mushroom-based actives and ferments designed to fit modern cosmetic formulations.",
+    "quote": "Request a Quote",
+    "tds": "Request TDS",
+    "samples": "Samples"
+  },
+  "project": {
+    "title": "Project",
+    "subtitle": "A clean B2B-facing overview of your lab process and production tracking. Built for credibility and scale.",
+
+    "leftTitle": "From lab to formulation-ready actives",
+    "leftText": "MUSHEAS combines disciplined extraction and fermentation workflows with consistent presentation for cosmetic manufacturers. This website mockup highlights a premium identity: teal + gold, minimal layout, and clear B2B sections.",
+
+    "ticks": [
+      {
+        "title": "Batch logic",
+        "desc": "Traceable batches, QC checkpoints, and consistent deliverables."
+      },
+      {
+        "title": "B2B-ready",
+        "desc": "Clean product pages, request workflow, and documentation-first messaging."
+      },
+      {
+        "title": "Brand system",
+        "desc": "A unified product line look: extracts + ferments under one premium identity."
+      }
+    ],
+
+    "rightTitle": "Key highlights",
+    "rightText": "Add your real lab photos, COA/TDS downloads, and inquiry forms. This layout is designed to convert manufacturer meetings into sample requests.",
+
+    "minis": [
+      {
+        "title": "Hero Story",
+        "desc": "One line: “Where Mycology Meets Biotechnology.”"
+      },
+      {
+        "title": "Product Grid",
+        "desc": "4-actives lineup with clean cards and CTA buttons."
+      },
+      {
+        "title": "Docs",
+        "desc": "Placeholders for TDS / SDS / COA links."
+      },
+      {
+        "title": "Contact",
+        "desc": "Direct WhatsApp/phone/email for Algeria B2B flow."
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Send a request for samples, pricing, or technical documentation. We’ll reply quickly.",
+
+    "companyTitle": "Company & Representative",
+    "companyTip": "Tip: For print-ready documents, add downloadable PDF links (TDS / SDS / COA) next to each product.",
+
+    "formTitle": "Send a message",
+    "namePlaceholder": "Your name / company",
+    "messagePlaceholder": "Tell us what you need: samples, pricing, TDS, custom extraction...",
+    "send": "Send Request",
+    "copy": "Copy Email",
+    "formNote": "This demo form does not send emails. Hook it to your backend later (Supabase, Formspree, or your API).",
+
+    "labels": {
+      "company": "Company",
+      "name": "Name",
+      "role": "Role",
+      "phone": "Phone",
+      "email": "Email"
+    }
+  },
+  "footer": {
+    "slogan": "Where Mycology Meets Biotechnology",
+    "backToTop": "Back to top",
+    "products": "Products"
+  },
+  "requestDialog": {
+    "title": "Request Information",
+    "subtitle": "Please provide your professional details so we can respond accurately to your request.",
+
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "company": "Company / Lab name",
+      "position": "Position / Role",
+      "phone": "Phone number",
+      "email": "Email address"
+    },
+
+    "actions": {
+      "submit": "Submit Request",
+      "cancel": "Cancel"
+    },
+
+    "privacy": "Your information is used only for professional contact regarding samples, pricing, or documentation.",
+
+    "snackbar": {
+      "success": "Request submitted successfully",
+      "error": "Something went wrong. Please try again."
+    }
+  }
+}
