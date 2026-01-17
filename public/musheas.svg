@@ -1,0 +1,21 @@
+<!-- sample rectangle -->
+<svg viewBox="0 0 64 64" width="34" height="34" xmlns="http://www.w3.org/2000/svg" fill="none">
+          <path
+          d="M12 28c0-10 9-18 20-18s20 8 20 18H12z"
+          stroke="rgba(210,178,107,.95)"
+          strokeWidth="15"
+          strokeLinecap="round"
+        />
+        <path
+          d="M28 28v16c0 4 3 7 7 7s7-3 7-7V28"
+          stroke="rgba(210,178,107,.95)"
+          strokeWidth="15"
+          strokeLinecap="round"
+        />
+        <path
+          d="M24 46c3 2 5 3 8 3s5-1 8-3"
+          stroke="rgba(210,178,107,.75)"
+          strokeWidth="14"
+          strokeLinecap="round"
+        />
+</svg>
