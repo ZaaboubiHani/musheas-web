@@ -132,6 +132,7 @@
 
     "snackbar": {
       "success": "Demande envoyée avec succès",
+      "sent": "Message envoyé avec succès",
       "error": "Une erreur est survenue. Veuillez réessayer."
     }
   }

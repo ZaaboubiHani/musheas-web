@@ -6,11 +6,40 @@ import {
   Typography,
   TextField,
   Button,
+  Snackbar,
 } from "@mui/material";
 import { PrimaryGoldButton, GoldButton } from "./Header";
 import { useTranslation } from "react-i18next";
+import { useMessages } from "../providers/MessageProvider";
+import { useState } from "react";
+
 export default function Contact() {
   const { t } = useTranslation();
+  const { createMessage } = useMessages();
+  const [open, setOpen] = useState(false);
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const handleChange = (key) => (e) =>
+    setForm((p) => ({ ...p, [key]: e.target.value }));
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    createMessage({
+      name: form.name,
+      email: form.email,
+      message: form.message,
+    });
+    setOpen(true);
+
+    setForm({ name: "", email: "", message: "" });
+  };
+
   return (
     <Box component="section" id="contact" sx={{ py: 7 }}>
       <Container maxWidth="lg">
@@ -64,10 +93,19 @@ export default function Contact() {
               <Stack component="form" spacing={2}>
                 <Grid container spacing={1.5}>
                   <Grid item xs={12} sm={6}>
-                    <Input placeholder={t("contact.namePlaceholder")} />
+                    <Input
+                      placeholder={t("contact.namePlaceholder")}
+                      value={form.name}
+                      onChange={handleChange("name")}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <Input placeholder="Email" type="email" />
+                    <Input
+                      placeholder="Email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleChange("email")}
+                    />
                   </Grid>
                 </Grid>
 
@@ -75,10 +113,12 @@ export default function Contact() {
                   placeholder={t("contact.messagePlaceholder")}
                   multiline
                   minRows={4}
+                  value={form.message}
+                  onChange={handleChange("message")}
                 />
 
                 <Stack direction="row" spacing={1.5} flexWrap="wrap">
-                  <PrimaryGoldButton href="#request">
+                  <PrimaryGoldButton onClick={handleSubmit}>
                     {t("contact.send")}
                   </PrimaryGoldButton>
                   <GoldButton href="#contact"> {t("contact.copy")}</GoldButton>
@@ -92,6 +132,12 @@ export default function Contact() {
           </Grid>
         </Grid>
       </Container>
+      <Snackbar
+        open={open}
+        autoHideDuration={4000}
+        onClose={() => setOpen(false)}
+        message={t("requestDialog.snackbar.sent")}
+      />
     </Box>
   );
 }
