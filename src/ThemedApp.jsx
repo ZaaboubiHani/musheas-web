@@ -8,6 +8,7 @@ import { useSiteSettings } from "./providers/SiteSettingsProvider";
 import { ProductProvider } from "./providers/ProductProvider";
 import { RequestProvider } from "./providers/RequestProvider";
 import { CartProvider } from "./providers/CartProvider";
+import { MessageProvider } from "./providers/MessageProvider";
 
 export default function ThemedApp({ isRTL }) {
   // const { settings, loading } = useSiteSettings();
@@ -204,9 +205,11 @@ export default function ThemedApp({ isRTL }) {
       <ProductProvider>
         <RequestProvider>
           <CartProvider>
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
+            <MessageProvider>
+              <BrowserRouter>
+                <AppRoutes />
+              </BrowserRouter>
+            </MessageProvider>
           </CartProvider>
         </RequestProvider>
       </ProductProvider>

@@ -129,6 +129,7 @@
 
     "snackbar": {
       "success": "Request submitted successfully",
+      "sent": "Message sent successfully",
       "error": "Something went wrong. Please try again."
     }
   }
