@@ -159,14 +159,14 @@ function ProductCard({
       }}
     >
       {/* Top */}
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="flex-start"
-        gap={1.5}
-        p={2}
-      >
-        <Box>
+      <Box p={2}>
+        {/* Row 1: Name + Badge */}
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="flex-start"
+          gap={1.5}
+        >
           <Typography
             sx={{
               fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
@@ -177,31 +177,39 @@ function ProductCard({
             {name[i18n.language]}
           </Typography>
 
-          <Typography
-            sx={{
-              mt: 0.5,
-              fontSize: 13,
-              minHeight: 44,
-              lineHeight: 1.55,
-              color: "rgba(233,242,241,.7)",
-            }}
-          >
-            {description[i18n.language]}
-          </Typography>
-          <Typography
-            sx={{
-              mt: 0.5,
-              fontSize: 12,
-              color: "rgba(210,178,107,.9)",
-              fontWeight: 500,
-            }}
-          >
-            #{categoryName[i18n.language]}
-          </Typography>
-        </Box>
+          <Badge>{badge[i18n.language]}</Badge>
+        </Stack>
 
-        <Badge>{badge[i18n.language]}</Badge>
-      </Stack>
+        {/* Row 2: Description */}
+        <Typography
+          sx={{
+            mt: 1,
+            fontSize: 13,
+            lineHeight: 1.55,
+            color: "rgba(233,242,241,.7)",
+
+            display: "-webkit-box",
+            WebkitLineClamp: 3, // 👈 number of lines (change to 2 if you want)
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {description[i18n.language]}
+        </Typography>
+
+        {/* Row 3: Category */}
+        <Typography
+          sx={{
+            mt: 0.5,
+            fontSize: 12,
+            color: "rgba(210,178,107,.9)",
+            fontWeight: 500,
+          }}
+        >
+          #{categoryName[i18n.language]}
+        </Typography>
+      </Box>
 
       {/* Image */}
       {imageUrls?.[0] && (
