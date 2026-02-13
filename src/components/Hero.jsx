@@ -9,9 +9,12 @@ import {
 } from "@mui/material";
 import { PrimaryGoldButton, GoldButton } from "./Header";
 import { useTranslation } from "react-i18next";
+import { useSection } from "../providers/SectionProvider";
 
 export default function Hero() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { section } = useSection();
+
   return (
     <Box component="section" id="about" sx={{ py: { xs: 4, md: 3 } }}>
       <Container maxWidth="lg">
@@ -64,7 +67,7 @@ export default function Hero() {
                     color: "rgba(233,242,241,.86)",
                   }}
                 >
-                  {t("hero.tagline")}
+                  {section?.heroTagline[i18n.language]}
                 </Typography>
 
                 <Typography
@@ -99,7 +102,7 @@ export default function Hero() {
                     color: "rgba(233,242,241,.85)",
                   }}
                 >
-                  {t("hero.description")}
+                  {section?.heroDescription[i18n.language]}
                 </Typography>
 
                 <Stack direction="row" gap={1.5} flexWrap="wrap" mt={1}>
@@ -116,7 +119,7 @@ export default function Hero() {
                     color: "rgba(233,242,241,.66)",
                   }}
                 >
-                  {t("hero.footer")}
+                  {section?.herofooter[i18n.language]}
                 </Typography>
               </Stack>
             </Box>
@@ -140,10 +143,10 @@ export default function Hero() {
             >
               {/* Pills */}
               <Stack direction="row" gap={1} flexWrap="wrap">
-                {t("hero.pills", { returnObjects: true }).map((pill) => (
+                {section?.pills.map((pill) => (
                   <Chip
-                    key={pill}
-                    label={pill}
+                    key={pill[i18n.language]}
+                    label={pill[i18n.language]}
                     sx={{
                       fontSize: 12,
                       borderRadius: "999px",
@@ -163,7 +166,7 @@ export default function Hero() {
                   letterSpacing: "0.03em",
                 }}
               >
-                {t("hero.deliverTitle")}
+                {section?.deliverTitle[i18n.language]}
               </Typography>
 
               <Typography
@@ -173,18 +176,19 @@ export default function Hero() {
                   color: "rgba(233,242,241,.8)",
                 }}
               >
-                {t("hero.deliverText")}
+                {section?.deliverText[i18n.language]}
               </Typography>
 
               {/* Mini grid */}
               <Grid container spacing={1.5} mt="auto">
-                {t("hero.features", { returnObjects: true }).map(
-                  ([title, text]) => (
-                    <Grid item xs={6} key={title} size={6}>
-                      <MiniCard title={title} text={text} />
-                    </Grid>
-                  )
-                )}
+                {section?.features.map((feature) => (
+                  <Grid item xs={6} key={feature.title[i18n.language]} size={6}>
+                    <MiniCard
+                      title={feature.title[i18n.language]}
+                      text={feature.description[i18n.language]}
+                    />
+                  </Grid>
+                ))}
               </Grid>
             </Box>
           </Grid>

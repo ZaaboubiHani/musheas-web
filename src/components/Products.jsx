@@ -15,12 +15,16 @@ import { useNavigate } from "react-router-dom";
 import RequestDialog from "./RequestDialog";
 import { useProducts } from "../providers/ProductProvider";
 import { useTranslation } from "react-i18next";
+import { useSection } from "../providers/SectionProvider";
+
+
 export default function Products() {
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const [type, setType] = useState();
   const [selectedProduct, setSelectedProduct] = useState();
   const { products, productsLoading, fetchProducts } = useProducts();
+  const { section } = useSection();
 
   const navigate = useNavigate();
 
@@ -49,7 +53,7 @@ export default function Products() {
                 color: "primary.main",
               }}
             >
-              {t("products.title")}
+               {section?.productsTitle[i18n.language]}
             </Typography>
 
             <Typography
@@ -60,9 +64,8 @@ export default function Products() {
                 lineHeight: 1.6,
                 color: "rgba(233,242,241,.72)",
               }}
-            >
-              {t("products.subtitle")}
-              {t("products.subtitle")}
+              >
+              {section?.productsSubtitle[i18n.language]}
             </Typography>
           </Box>
 
@@ -172,6 +175,12 @@ function ProductCard({
               fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
               fontSize: 18,
               letterSpacing: "0.02em",
+
+                display: "-webkit-box",
+            WebkitLineClamp: 3, // 👈 number of lines (change to 2 if you want)
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
             }}
           >
             {name[i18n.language]}
@@ -237,7 +246,7 @@ function ProductCard({
       )}
 
       {/* Actions */}
-      <Stack direction="row" gap={1.2} px={2} pb={2}>
+      <Stack direction="row" gap={1.2} px={2} pb={2} mt={2}>
         <ActionButton
           onClick={(e) => {
             e.stopPropagation();

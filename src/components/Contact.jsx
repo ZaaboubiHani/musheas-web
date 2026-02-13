@@ -79,9 +79,7 @@ export default function Contact() {
 
               <KeyValue />
 
-              <Typography className="tiny">
-                {t("contact.companyTip")}
-              </Typography>
+            
             </ContactBox>
           </Grid>
 
@@ -124,9 +122,7 @@ export default function Contact() {
                   <GoldButton href="#contact"> {t("contact.copy")}</GoldButton>
                 </Stack>
 
-                <Typography className="tiny">
-                  {t("contact.formNote")}
-                </Typography>
+               
               </Stack>
             </ContactBox>
           </Grid>
