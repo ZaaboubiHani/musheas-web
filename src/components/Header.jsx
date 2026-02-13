@@ -14,9 +14,11 @@ import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { useSection } from "../providers/SectionProvider";
 
 export default function Header() {
   const { t } = useTranslation();
+  const { section } = useSection();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = useState(false);
@@ -123,10 +125,7 @@ export default function Header() {
         </Container>
       </AppBar>
 
-      <MobileDrawer
-        open={open}
-        onClose={() => setOpen(false)}
-      />
+      <MobileDrawer open={open} onClose={() => setOpen(false)} />
     </>
   );
 }
@@ -204,10 +203,7 @@ export function PrimaryGoldButton({ children, ...props }) {
   );
 }
 
-export function MobileDrawer({
-  open,
-  onClose,
-}) {
+export function MobileDrawer({ open, onClose }) {
   const { t } = useTranslation();
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>

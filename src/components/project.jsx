@@ -1,9 +1,12 @@
 import { Box, Container, Grid, Stack, Typography } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import { useTranslation } from "react-i18next";
+import { useSection } from "../providers/SectionProvider";
 
 export default function Project() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { section } = useSection();
+
   return (
     <Box component="section" id="project" sx={{ py: 7 }}>
       <Container maxWidth="lg">
@@ -18,7 +21,7 @@ export default function Project() {
               color: "primary.main",
             }}
           >
-            {t("project.title")}
+            {section?.porjectTitle[i18n.language]}
           </Typography>
 
           <Typography
@@ -30,7 +33,7 @@ export default function Project() {
               color: "rgba(233,242,241,.72)",
             }}
           >
-            {t("project.subtitle")}
+            {section?.porjectText[i18n.language]}
           </Typography>
         </Box>
 
@@ -39,13 +42,18 @@ export default function Project() {
           {/* Left panel */}
           <Grid item size={{ xs: 12, md: 6 }}>
             <Panel>
-              <Typography variant="h3">{t("project.leftTitle")}</Typography>
+              <Typography variant="h3">
+                {section?.leftTitle[i18n.language]}
+              </Typography>
 
-              <Typography>{t("project.leftText")}</Typography>
+              <Typography>{section?.leftText[i18n.language]}</Typography>
 
               <Stack component="ul" spacing={2} mt={2} sx={{ p: 0 }}>
-                {t("project.ticks", { returnObjects: true }).map((tick) => (
-                  <TickItem title={tick.title} desc={tick.desc} />
+                {section?.ticks.map((tick) => (
+                  <TickItem
+                    title={tick.title[i18n.language]}
+                    desc={tick.description[i18n.language]}
+                  />
                 ))}
               </Stack>
             </Panel>
@@ -54,13 +62,18 @@ export default function Project() {
           {/* Right panel */}
           <Grid item size={{ xs: 12, md: 6 }}>
             <Panel>
-              <Typography variant="h3"> {t("project.rightTitle")}</Typography>
+              <Typography variant="h3">
+                {section?.rightTitle[i18n.language]}
+              </Typography>
 
-              <Typography>{t("project.rightText")}</Typography>
+              <Typography> {section?.rightText[i18n.language]} </Typography>
 
               <Grid container spacing={2} mt={1}>
-                {t("project.minis", { returnObjects: true }).map((mini) => (
-                  <Mini title={mini.title} desc={mini.desc} />
+                {section?.minis.map((mini) => (
+                  <Mini
+                    title={mini.title[i18n.language]}
+                    desc={mini.description[i18n.language]}
+                  />
                 ))}
               </Grid>
             </Panel>
