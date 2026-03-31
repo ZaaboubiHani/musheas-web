@@ -20,7 +20,7 @@ export default function Hero() {
       <Container maxWidth="lg">
         <Grid container spacing={{ xs: 2, md: 3 }} alignItems="stretch" mt={2}>
           {/* LEFT – MAIN HERO */}
-          <Grid item xs={12} size={{ md: 7 }}>
+          <Grid size={{xs: 12, md: 7 }}>
             <Box
               sx={{
                 position: "relative",
@@ -126,7 +126,7 @@ export default function Hero() {
           </Grid>
 
           {/* RIGHT – SIDE CARD */}
-          <Grid item xs={12} size={{ md: 5 }} mt={2}>
+          <Grid size={{ xs: 12, md: 5 }} mt={2}>
             <Box
               sx={{
                 height: "100%",
@@ -182,7 +182,7 @@ export default function Hero() {
               {/* Mini grid */}
               <Grid container spacing={1.5} mt="auto">
                 {section?.features.map((feature) => (
-                  <Grid item xs={6} key={feature.title[i18n.language]} size={6}>
+                  <Grid size={{ xs: 6 }} key={feature.title[i18n.language]}>
                     <MiniCard
                       title={feature.title[i18n.language]}
                       text={feature.description[i18n.language]}

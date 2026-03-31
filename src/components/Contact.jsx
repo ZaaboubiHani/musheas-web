@@ -73,31 +73,29 @@ export default function Contact() {
         {/* Grid */}
         <Grid container spacing={3}>
           {/* Company box */}
-          <Grid item size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <ContactBox>
               <Typography variant="h3">{t("contact.companyTitle")}</Typography>
 
-              <KeyValue />
-
-            
+              <KeyValue t={t} />
             </ContactBox>
           </Grid>
 
           {/* Form box */}
-          <Grid item size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <ContactBox>
               <Typography variant="h3"> {t("contact.formTitle")}</Typography>
 
               <Stack component="form" spacing={2}>
                 <Grid container spacing={1.5}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Input
                       placeholder={t("contact.namePlaceholder")}
                       value={form.name}
                       onChange={handleChange("name")}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Input
                       placeholder="Email"
                       type="email"
@@ -121,8 +119,6 @@ export default function Contact() {
                   </PrimaryGoldButton>
                   <GoldButton href="#contact"> {t("contact.copy")}</GoldButton>
                 </Stack>
-
-               
               </Stack>
             </ContactBox>
           </Grid>
@@ -167,21 +163,26 @@ function ContactBox({ children }) {
     </Box>
   );
 }
-function KeyValue() {
+function KeyValue({ t }) {
   const rows = [
-    ["Company", "MUSHEAS"],
-    ["Name", "Nabil YAHIA"],
-    ["Role", "R&D Manager & Business Development — Meetings Representative"],
-    ["Phone", "0674861146"],
-    ["Email", "musheas.lab@gmail.com"],
+    ["company", "MUSHEAS"],
+    ["name", "Nabil YAHIA"],
+    ["role", "R&D Manager & Business Development — Meetings Representative"],
+    ["phone", "0674861146"],
+    ["email", "musheas.lab@gmail.com"],
   ];
 
   return (
     <Box
       sx={{
         display: "grid",
-        gridTemplateColumns: "110px 1fr",
-        gap: "10px 12px",
+        gridTemplateColumns: {
+          xs: "100px 1fr",
+          sm: "120px 1fr",
+          md: "150px 1fr",
+          lg: "180px 1fr",
+        },
+        gap: "10px 0px",
         fontSize: 14,
         color: "rgba(233,242,241,.78)",
       }}
@@ -196,7 +197,7 @@ function KeyValue() {
               color: "rgba(233,242,241,.62)",
             }}
           >
-            {k}
+            {t(`contact.labels.${k}`)}
           </Typography>
           <Typography>{v}</Typography>
         </Box>

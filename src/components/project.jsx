@@ -40,7 +40,7 @@ export default function Project() {
         {/* Content */}
         <Grid container spacing={3}>
           {/* Left panel */}
-          <Grid item size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Panel>
               <Typography variant="h3">
                 {section?.leftTitle[i18n.language]}
@@ -60,7 +60,7 @@ export default function Project() {
           </Grid>
 
           {/* Right panel */}
-          <Grid item size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Panel>
               <Typography variant="h3">
                 {section?.rightTitle[i18n.language]}
@@ -157,7 +157,7 @@ function TickItem({ title, desc }) {
 
 function Mini({ title, desc }) {
   return (
-    <Grid item size={{ xs: 12, md: 6 }}>
+    <Grid size={{ xs: 12, md: 6 }}>
       <Stack
         spacing={0.5}
         sx={{

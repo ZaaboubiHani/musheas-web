@@ -17,7 +17,14 @@ import { useRequests } from "../providers/RequestProvider";
 import { useState } from "react";
 import { Globals } from "../api/api.source";
 import { useTranslation } from "react-i18next";
-export default function RequestDialog({ open, onClose, product, type }) {
+export default function RequestDialog({
+  open,
+  onClose,
+  product,
+  type,
+  quantity,
+  unit,
+}) {
   const { createRequest } = useRequests();
   const { t } = useTranslation();
 
@@ -49,8 +56,12 @@ export default function RequestDialog({ open, onClose, product, type }) {
     try {
       await createRequest({
         ...form,
-        name: product?.name?.en || undefined,
+        name: product?.name?.fr || product?.name?.en || undefined,
+        description: product?.description?.fr || product?.description?.en || undefined,
+        badge: product?.badge?.fr || product?.badge?.en || undefined,
         type,
+        quantity,
+        unit,
         imageUrl:
           product?.imageUrls[0]?.replace(Globals.apiUrl + "/", "") || undefined,
         createdAt: new Date().toISOString(),
@@ -145,14 +156,14 @@ export default function RequestDialog({ open, onClose, product, type }) {
 
         <Stack component="form" spacing={2.2} onSubmit={handleSubmit}>
           <Grid container spacing={1.5}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Input
                 placeholder={t("requestDialog.fields.firstName")}
                 value={form.firstName}
                 onChange={handleChange("firstName")}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Input
                 placeholder={t("requestDialog.fields.lastName")}
                 value={form.lastName}
@@ -160,7 +171,7 @@ export default function RequestDialog({ open, onClose, product, type }) {
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Input
                 placeholder={t("requestDialog.fields.company")}
                 value={form.company}
@@ -168,7 +179,7 @@ export default function RequestDialog({ open, onClose, product, type }) {
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Input
                 placeholder={t("requestDialog.fields.position")}
                 value={form.position}
@@ -176,7 +187,7 @@ export default function RequestDialog({ open, onClose, product, type }) {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Input
                 placeholder={t("requestDialog.fields.phone")}
                 value={form.phone}
@@ -184,7 +195,7 @@ export default function RequestDialog({ open, onClose, product, type }) {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Input
                 placeholder={t("requestDialog.fields.email")}
                 type="email"
