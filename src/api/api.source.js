@@ -3,7 +3,8 @@ import axios from "axios";
 export class Globals {
   static apiUrl =
 //  'http://localhost:3000';
-  'http://51.83.167.198:4040';
+  // 'http://51.83.167.198:4040';
+    'https://api.musheas-lab.com';
 }
 
 class Api {
