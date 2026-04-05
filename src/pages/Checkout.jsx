@@ -51,6 +51,9 @@ export default function Checkout() {
     if (location.state?.requestType) {
       setRequestType(location.state.requestType);
     }
+    if (location.state?.requestOrigin) {
+      setRequestOrigin(location.state.requestOrigin);
+    }
   }, [location]);
 
   // Form state

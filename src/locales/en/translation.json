@@ -5,7 +5,10 @@
     "about": "About",
     "products": "Products",
     "project": "Project",
-    "contact": "Contact"
+    "contact": "Contact",
+    "home": "Home",
+    "store": "Store",
+    "b2b": "B2B"
   },
   "hero": {
     "tagline": "Mycology in Biotechnology",
@@ -50,7 +53,16 @@
     "unit": "Unit",
 
     "addedToCart": "{{name}} added to cart",
-    "cartUpdated": "Cart updated to {{quantity}} items"
+    "cartUpdated": "Cart updated to {{quantity}} items",
+
+    "b2bProduct": "B2B Product",
+    "b2bPricing": "B2B Pricing",
+    "b2bPricingMessage": "Contact our sales team for wholesale pricing and bulk orders",
+    "keyBenefits": "Key Benefits",
+    "howToUse": "How to Use",
+    "ingredients": "Ingredients",
+    "requestQuote": "Request a Quote",
+    "youMightAlsoLike": "You might also like"
   },
   "cart": {
     "title": "My Cart",
@@ -122,7 +134,6 @@
     "viewOrders": "View My Orders",
     "position": "Position / Role",
 
-   
     "requestType": "Request Type",
     "samples": "Samples",
     "tds": "TDS (Technical Data Sheet)"
@@ -223,5 +234,23 @@
       "sent": "Message sent successfully",
       "error": "Something went wrong. Please try again."
     }
+  },
+  "store": {
+    "title": "Store",
+    "subtitle": "Discover our products",
+    "showingResults": "Showing {{from}}-{{to}} of {{total}} results",
+    "loading": "Loading...",
+    "sortBy": "Sort by",
+    "perPage": "Per page",
+    "sort": {
+      "newest": "Newest",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low",
+      "name": "Name"
+    },
+    "noProducts": "No products available"
+  },
+  "common": {
+    "backToHome": "Back to home"
   }
 }

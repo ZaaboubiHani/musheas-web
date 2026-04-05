@@ -5,7 +5,10 @@
     "about": "À propos",
     "products": "Produits",
     "project": "Projet",
-    "contact": "Contact"
+    "contact": "Contact",
+    "home": "Accueil",
+    "store": "Boutique",
+    "b2b": "B2B"
   },
   "hero": {
     "tagline": "Mycologie en biotechnologie",
@@ -53,7 +56,15 @@
     "unit": "Unité",
 
     "addedToCart": "{{name}} ajouté au panier",
-    "cartUpdated": "Panier mis à jour : {{quantity}} article(s)"
+    "cartUpdated": "Panier mis à jour : {{quantity}} article(s)",
+    "b2bProduct": "Produit B2B",
+    "b2bPricing": "Tarification B2B",
+    "b2bPricingMessage": "Contactez notre équipe commerciale pour les prix de gros et les commandes en lots",
+    "keyBenefits": "Avantages Clés",
+    "howToUse": "Mode d'Emploi",
+    "ingredients": "Ingrédients",
+    "requestQuote": "Demander un Devis",
+     "youMightAlsoLike": "Vous pourriez aussi aimer"
   },
   "checkout": {
     "title": "Demander",
@@ -107,7 +118,7 @@
     "continueShopping": "Continuer les achats",
     "viewOrders": "Voir mes commandes",
     "position": "Poste / Fonction",
-     "requestType": "Type de demande",
+    "requestType": "Type de demande",
     "samples": "Échantillons",
     "tds": "TDS (Fiche technique)"
   },
@@ -122,8 +133,8 @@
     "remove": "Supprimer",
     "update": "Mettre à jour",
     "clear": "Vider le panier",
-  
-     "cancel": "Annuler",
+
+    "cancel": "Annuler",
     "clearCartTitle": "Vider le panier ?",
     "clearCartConfirm": "Êtes-vous sûr de vouloir supprimer tous les articles de votre panier ?",
     "cartCleared": "Panier vidé avec succès"
@@ -225,5 +236,23 @@
       "sent": "Message envoyé avec succès",
       "error": "Une erreur est survenue. Veuillez réessayer."
     }
+  },
+  "store": {
+    "title": "Boutique",
+    "subtitle": "Découvrez nos produits",
+    "showingResults": "Affichage de {{from}}-{{to}} sur {{total}} résultats",
+    "loading": "Chargement...",
+    "sortBy": "Trier par",
+    "perPage": "Par page",
+    "sort": {
+      "newest": "Plus récents",
+      "priceLow": "Prix: croissant",
+      "priceHigh": "Prix: décroissant",
+      "name": "Nom"
+    },
+    "noProducts": "Aucun produit disponible"
+  },
+  "common": {
+    "backToHome": "Retour à l'accueil"
   }
 }

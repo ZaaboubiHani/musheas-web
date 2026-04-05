@@ -10,34 +10,33 @@ export function ProductProvider({ children }) {
   const [productsLoading, setProductsLoading] = useState(true);
   const [product, setProduct] = useState(null); // for single product
   const [productLoading, setProductLoading] = useState(false);
+  const [pagination, setPagination] = useState(null); // store pagination info
+  const [randomProducts, setRandomProducts] = useState([]); // for random products
+  const [randomProductsLoading, setRandomProductsLoading] = useState(false);
 
   /* ---------------- FETCH ALL ---------------- */
   const fetchProducts = async ({
-    search = "",
-    category = "",
-    priceRange = [0, 1000],
-    sortBy = "",
-    page = 1, // <-- new
-    limit = 100, // <-- new
-    lang = "en",
+    page = 1,
+    limit = 10,
+    productType, // <-- new: optional filter
   } = {}) => {
     setProductsLoading(true);
     try {
-      const { data } = await axios.get("/products", {
-        params: {
-          search,
-          category,
-          minPrice: priceRange[0],
-          maxPrice: priceRange[1],
-          lang,
-          sortBy,
-          page, // send page to backend
-          limit, // send limit to backend
-        },
-      });
+      const params = {
+        page,
+        limit,
+      };
+
+      // Only add productType if provided
+      if (productType) {
+        params.productType = productType;
+      }
+
+      const { data } = await axios.get("/products", { params });
 
       setProducts(data.data);
-      return data.pagination; // return pagination info if needed
+      setPagination(data.pagination); // store pagination in state
+      return data.pagination;
     } finally {
       setProductsLoading(false);
     }
@@ -49,9 +48,25 @@ export function ProductProvider({ children }) {
     try {
       const { data } = await axios.get(`/products/${id}`);
       setProduct(data.data);
-      return data.data; // optional: return the fetched product
+      return data.data;
     } finally {
       setProductLoading(false);
+    }
+  };
+
+  /* ---------------- FETCH RANDOM PRODUCTS ---------------- */
+  const fetchRandomProducts = async () => {
+    setRandomProductsLoading(true);
+    try {
+      const { data } = await axios.get("/products/random");
+      setRandomProducts(data.data);
+      return data.data;
+    } catch (error) {
+      console.error("Error fetching random products:", error);
+      setRandomProducts([]);
+      return [];
+    } finally {
+      setRandomProductsLoading(false);
     }
   };
 
@@ -64,6 +79,10 @@ export function ProductProvider({ children }) {
         product,
         productLoading,
         fetchProductById,
+        pagination, // expose pagination
+        randomProducts,
+        randomProductsLoading,
+        fetchRandomProducts,
       }}
     >
       {children}
