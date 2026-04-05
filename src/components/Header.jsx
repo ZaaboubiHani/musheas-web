@@ -27,7 +27,6 @@ import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
-import { useSection } from "../providers/SectionProvider";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../providers/CartProvider";
 import Swal from "sweetalert2";
@@ -35,7 +34,6 @@ import { useSnackbar } from "../providers/SnackbarProvider";
 
 export default function Header() {
   const { t, i18n } = useTranslation();
-  const { section } = useSection();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = useState(false);
@@ -44,15 +42,10 @@ export default function Header() {
   const location = useLocation();
   const { cartCount } = useCart();
 
-  const handleNavigation = (hashKey) => {
-    if (location.pathname !== "/") {
-      navigate(`/#${hashKey}`);
-    } else {
-      const element = document.getElementById(hashKey);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
+  const handleNavigation = (path) => {
+    navigate(path);
+    // Close mobile drawer if open
+    if (open) setOpen(false);
   };
 
   return (
@@ -78,8 +71,21 @@ export default function Header() {
             py={2}
             gap={2}
           >
-            {/* Brand */}
-            <Stack direction="row" alignItems="center" gap={1}>
+            {/* Brand - Clickable to go home */}
+            <Stack 
+              direction="row" 
+              alignItems="center" 
+              gap={1}
+              component={Link}
+              to="/"
+              sx={{ 
+                cursor: "pointer", 
+                textDecoration: "none",
+                "&:hover": {
+                  opacity: 0.9,
+                }
+              }}
+            >
               <Logo />
               <Typography
                 sx={{
@@ -93,7 +99,7 @@ export default function Header() {
               </Typography>
             </Stack>
 
-            {/* Menu */}
+            {/* Menu - Navigation Links */}
             {!isMobile && (
               <Stack
                 direction="row"
@@ -104,28 +110,46 @@ export default function Header() {
                   textTransform: "uppercase",
                 }}
               >
-                {[
-                  "header.about",
-                  "header.products",
-                  "header.project",
-                  "header.contact",
-                ].map((key) => (
-                  <Button
-                    key={key}
-                    onClick={() => handleNavigation(key.replace("header.", ""))}
-                    sx={{
-                      color: "text.primary",
-                      borderRadius: 2,
-                      "&:hover": {
-                        backgroundColor: "rgba(210,178,107,0.08)",
-                      },
-                    }}
-                  >
-                    {t(key)}
-                  </Button>
-                ))}
+                <Button
+                  onClick={() => handleNavigation("/")}
+                  sx={{
+                    color: "text.primary",
+                    borderRadius: 2,
+                    "&:hover": {
+                      backgroundColor: "rgba(210,178,107,0.08)",
+                    },
+                  }}
+                >
+                  {t("header.home") || "Home"}
+                </Button>
 
-                <LanguageSwitcher></LanguageSwitcher>
+                <Button
+                  onClick={() => handleNavigation("/store")}
+                  sx={{
+                    color: "text.primary",
+                    borderRadius: 2,
+                    "&:hover": {
+                      backgroundColor: "rgba(210,178,107,0.08)",
+                    },
+                  }}
+                >
+                  {t("header.store") || "Store"}
+                </Button>
+
+                <Button
+                  onClick={() => handleNavigation("/b2b")}
+                  sx={{
+                    color: "text.primary",
+                    borderRadius: 2,
+                    "&:hover": {
+                      backgroundColor: "rgba(210,178,107,0.08)",
+                    },
+                  }}
+                >
+                  {t("header.b2b") || "B2B"}
+                </Button>
+
+                <LanguageSwitcher />
               </Stack>
             )}
 
@@ -251,6 +275,13 @@ export function PrimaryGoldButton({ children, ...props }) {
 
 export function MobileDrawer({ open, onClose }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    onClose();
+  };
+
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <Stack
@@ -267,30 +298,39 @@ export function MobileDrawer({ open, onClose }) {
           backdropFilter: "blur(6px)",
         }}
       >
-        {[
-          "header.about",
-          "header.products",
-          "header.project",
-          "header.contact",
-        ].map((item) => (
-          <Button
-            key={item}
-            href={`#${item.toLowerCase()}`}
-            onClick={onClose}
-            sx={{
-              color: "text.primary",
-            }}
-          >
-            {t(item)}
-          </Button>
-        ))}
+        <Button
+          onClick={() => handleNavigation("/")}
+          sx={{
+            color: "text.primary",
+          }}
+        >
+          {t("header.home") || "Home"}
+        </Button>
 
-        <LanguageSwitcher></LanguageSwitcher>
+        <Button
+          onClick={() => handleNavigation("/store")}
+          sx={{
+            color: "text.primary",
+          }}
+        >
+          {t("header.store") || "Store"}
+        </Button>
 
-        <GoldButton href="#contact" onClick={onClose}>
+        <Button
+          onClick={() => handleNavigation("/b2b")}
+          sx={{
+            color: "text.primary",
+          }}
+        >
+          {t("header.b2b") || "B2B"}
+        </Button>
+
+        <LanguageSwitcher />
+
+        <GoldButton onClick={() => handleNavigation("/store")}>
           {t("header.requestCatalog")}
         </GoldButton>
-        <PrimaryGoldButton href="#products" onClick={onClose}>
+        <PrimaryGoldButton onClick={() => handleNavigation("/store")}>
           {t("header.samples")}
         </PrimaryGoldButton>
       </Stack>
@@ -298,7 +338,6 @@ export function MobileDrawer({ open, onClose }) {
   );
 }
 
-// Cart Drawer Component
 // Cart Drawer Component
 function CartDrawer({ open, onClose }) {
   const { t, i18n } = useTranslation();

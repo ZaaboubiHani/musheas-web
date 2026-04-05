@@ -8,99 +8,233 @@ import {
   Card,
   Skeleton,
   CardContent,
-  Snackbar,
-  Alert,
+  Pagination,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { GoldButton } from "./Header";
-import { useEffect, useState } from "react";
+import { GoldButton } from "../components/Header";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProducts } from "../providers/ProductProvider";
 import { useCart } from "../providers/CartProvider";
 import { useTranslation } from "react-i18next";
 import { useSection } from "../providers/SectionProvider";
 import { useSnackbar } from "../providers/SnackbarProvider";
+import StoreIcon from "@mui/icons-material/Store";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-export default function Products() {
+export default function Store() {
   const { t, i18n } = useTranslation();
-  const { randomProducts, randomProductsLoading, fetchRandomProducts } = useProducts();
+  const { products, productsLoading, fetchProducts, pagination } =
+    useProducts();
   const { addToCart } = useCart();
   const { section } = useSection();
   const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(12);
+  const [sortBy, setSortBy] = useState("newest");
+
+  // Use ref to prevent infinite loop
+  const isInitialLoad = useRef(true);
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleLimitChange = (event) => {
+    setLimit(parseInt(event.target.value, 10));
+    setPage(1);
+  };
+
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+  };
+
+  // Fetch products - only when page or limit changes, not on every render
   useEffect(() => {
-    fetchRandomProducts(4); // Fetch 4 random products
-  }, []);
+    if (isInitialLoad.current || !productsLoading) {
+      isInitialLoad.current = false;
+      fetchProducts({
+        page,
+        limit,
+        productType: "regular",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit]); // <-- Only depend on page and limit, NOT fetchProducts
 
   const handleAddToCartAndCheckout = (product, type) => {
-    // Add product to cart with quantity 1
     addToCart(product, 1);
-
-    // Show success message
     showSnackbar(
       t("products.addedToCart", { name: product.name[i18n.language] }),
       "success",
     );
-
-    // Navigate to checkout with the selected type
     navigate("/checkout", {
       state: {
         requestType: type,
-        requestOrigin: product.productType === "b2b" ? "company" : "client",
+        requestOrigin: "client",
       },
     });
   };
 
+  // Sort products client-side
+  const sortedProducts = [...products].sort((a, b) => {
+    switch (sortBy) {
+      case "price-low":
+        return (a.price || 0) - (b.price || 0);
+      case "price-high":
+        return (b.price || 0) - (a.price || 0);
+      case "name":
+        return (a.name[i18n.language] || "").localeCompare(
+          b.name[i18n.language] || "",
+        );
+      case "newest":
+      default:
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    }
+  });
+
   return (
-    <Box component="section" id="products" sx={{ py: 7 }}>
+    <Box component="section" id="products" sx={{ pt: 4, }}>
       <Container maxWidth="lg">
-        {/* Section Head */}
+        {/* Header */}
         <Stack
-          direction={{ xs: "column", md: "row" }}
-          alignItems={{ md: "flex-end" }}
+          direction={{ xs: "column", sm: "row" }}
+          alignItems={{ xs: "flex-start", sm: "center" }}
           justifyContent="space-between"
           gap={2}
-          mb={3}
+          mb={4}
         >
-          <Box>
-            <Typography
-              component="h2"
-              sx={{
-                fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
-                fontSize: 28,
-                letterSpacing: "0.03em",
-                color: "primary.main",
-              }}
-            >
-              {section?.productsTitle[i18n.language]}
-            </Typography>
+          <Stack direction="row" alignItems="center" gap={2}>
+            <StoreIcon sx={{ color: "primary.main", fontSize: 32 }} />
+            <Box>
+              <Typography
+                component="h1"
+                sx={{
+                  fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
+                  fontSize: { xs: 24, sm: 32 },
+                  letterSpacing: "0.03em",
+                  color: "primary.main",
+                }}
+              >
+                {section?.productsTitle?.[i18n.language] || t("store.title")}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  color: "rgba(233,242,241,.72)",
+                }}
+              >
+                {section?.productsSubtitle?.[i18n.language] ||
+                  t("store.subtitle")}
+              </Typography>
+            </Box>
+          </Stack>
 
-            <Typography
-              sx={{
-                mt: 0.5,
-                fontSize: 14,
-                maxWidth: "60ch",
-                lineHeight: 1.6,
-                color: "rgba(233,242,241,.72)",
-              }}
-            >
-              {section?.productsSubtitle[i18n.language]}
-            </Typography>
-          </Box>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate("/")}
+            sx={{ color: "rgba(233,242,241,.7)" }}
+          >
+            {t("common.backToHome")}
+          </Button>
+        </Stack>
 
-          <GoldButton href="#contact">{t("products.quote")}</GoldButton>
+        {/* Filters & Controls */}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "stretch", sm: "center" }}
+          gap={2}
+          mb={3}
+          p={2}
+          sx={{
+            background: "rgba(255,255,255,0.02)",
+            borderRadius: 2,
+            border: "1px solid rgba(210,178,107,.1)",
+          }}
+        >
+          {/* Results count */}
+          <Typography sx={{ color: "rgba(233,242,241,.7)", fontSize: 14 }}>
+            {pagination?.totalCount
+              ? t("store.showingResults", {
+                  from: (page - 1) * limit + 1,
+                  to: Math.min(page * limit, pagination.totalCount),
+                  total: pagination.totalCount,
+                })
+              : t("store.loading")}
+          </Typography>
+
+          <Stack
+            direction="row"
+            gap={2}
+            flexWrap="wrap"
+            justifyContent={{ xs: "stretch", sm: "flex-end" }}
+          >
+            {/* Sort */}
+            {/* <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel sx={{ color: "rgba(233,242,241,.7)" }}>
+                {t("store.sortBy")}
+              </InputLabel>
+              <Select
+                value={sortBy}
+                onChange={handleSortChange}
+                label={t("store.sortBy")}
+                sx={{
+                  color: "white",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgba(210,178,107,.3)",
+                  },
+                }}
+              >
+                <MenuItem value="newest">{t("store.sort.newest")}</MenuItem>
+                <MenuItem value="price-low">{t("store.sort.priceLow")}</MenuItem>
+                <MenuItem value="price-high">{t("store.sort.priceHigh")}</MenuItem>
+                <MenuItem value="name">{t("store.sort.name")}</MenuItem>
+              </Select>
+            </FormControl> */}
+
+            {/* Items per page */}
+            <FormControl size="small" sx={{ minWidth: 100 }}>
+              <InputLabel sx={{ color: "rgba(233,242,241,.7)" }}>
+                {t("store.perPage")}
+              </InputLabel>
+              <Select
+                value={limit}
+                onChange={handleLimitChange}
+                label={t("store.perPage")}
+                sx={{
+                  color: "white",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "rgba(210,178,107,.3)",
+                  },
+                }}
+              >
+                <MenuItem value={8}>8</MenuItem>
+                <MenuItem value={12}>12</MenuItem>
+                <MenuItem value={24}>24</MenuItem>
+                <MenuItem value={48}>48</MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
         </Stack>
 
         {/* Products Grid */}
         <Grid container spacing={3}>
-          {randomProductsLoading
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <Grid key={i} size={{ xs: 12, sm: 6, md: 3 }}>
+          {productsLoading
+            ? Array.from({ length: limit }).map((_, i) => (
+                <Grid key={i} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                   <ProductSkeleton />
                 </Grid>
               ))
-            : randomProducts.map((product) => (
-                <Grid key={product._id} size={{ xs: 12, sm: 6, md: 3 }}>
+            : sortedProducts.map((product) => (
+                <Grid key={product._id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                   <ProductCard
                     {...product}
                     onClick={() => navigate(`/products/${product._id}`)}
@@ -114,6 +248,42 @@ export default function Products() {
                 </Grid>
               ))}
         </Grid>
+
+        {/* Empty State */}
+        {!productsLoading && sortedProducts.length === 0 && (
+          <Box textAlign="center" py={8}>
+            <Typography variant="h6" sx={{ color: "rgba(233,242,241,.7)" }}>
+              {t("store.noProducts")}
+            </Typography>
+          </Box>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && (
+          <Stack alignItems="center" mt={6}>
+            <Pagination
+              count={pagination.totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+              disabled={productsLoading}
+              sx={{
+                "& .MuiPaginationItem-root": {
+                  color: "rgba(233,242,241,.7)",
+                  borderColor: "rgba(210,178,107,.3)",
+                },
+                "& .MuiPaginationItem-root.Mui-selected": {
+                  backgroundColor: "rgba(210,178,107,.2)",
+                  color: "#d2b26b",
+                },
+                "& .MuiPaginationItem-root:hover": {
+                  backgroundColor: "rgba(210,178,107,.1)",
+                },
+              }}
+            />
+          </Stack>
+        )}
       </Container>
     </Box>
   );
@@ -126,21 +296,25 @@ function ProductSkeleton() {
         borderRadius: 2,
         background: "rgba(255,255,255,0.04)",
         backdropFilter: "blur(6px)",
+        height: "100%",
       }}
     >
-      <Skeleton variant="rectangular" height={140} />
+      <Skeleton variant="rectangular" height={180} />
       <CardContent>
         <Stack spacing={1}>
           <Skeleton variant="text" width="60%" />
           <Skeleton variant="text" width="90%" />
           <Skeleton variant="text" width="40%" />
+          <Box mt={2}>
+            <Skeleton variant="rectangular" height={36} />
+          </Box>
         </Stack>
       </CardContent>
     </Card>
   );
 }
 
-export function ProductCard({
+function ProductCard({
   name,
   description,
   categoryName,
@@ -149,14 +323,12 @@ export function ProductCard({
   price,
   discountPrice,
   unit,
-  productType,
   onRequestTds,
   onRequestSamples,
   ...props
 }) {
   const { t, i18n } = useTranslation();
 
-  // Helper function to format price in DZD
   const formatPrice = (value) => {
     if (!value && value !== 0) return null;
     return new Intl.NumberFormat(i18n.language === "fr" ? "fr-DZ" : "en-DZ", {
@@ -167,7 +339,6 @@ export function ProductCard({
     }).format(value);
   };
 
-  // Helper function to get unit label in current language
   const getUnitLabel = (unitValue) => {
     const unitLabels = {
       kg: { en: "kg", fr: "kg" },
@@ -206,6 +377,11 @@ export function ProductCard({
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 25px 60px rgba(0,0,0,.45)",
+        },
       }}
     >
       {/* Top */}
@@ -264,9 +440,9 @@ export function ProductCard({
           {description[i18n.language]}
         </Typography>
 
-        {/* Price Section - Mobile Responsive */}
-        {price && productType === "regular" && (
-          <Box sx={{ mt: 1 }}>
+        {/* Price Section */}
+        {price && (
+          <Box sx={{ mt: 1.5 }}>
             <Stack
               direction="row"
               alignItems="baseline"
@@ -278,7 +454,7 @@ export function ProductCard({
                 <>
                   <Typography
                     sx={{
-                      fontSize: { xs: 16, sm: 18, md: 20 },
+                      fontSize: { xs: 18, sm: 20, md: 22 },
                       fontWeight: "bold",
                       color: "#d2b26b",
                       fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
@@ -289,7 +465,7 @@ export function ProductCard({
                   </Typography>
                   <Typography
                     sx={{
-                      fontSize: { xs: 12, sm: 13, md: 14 },
+                      fontSize: { xs: 13, sm: 14 },
                       color: "rgba(233,242,241,.5)",
                       textDecoration: "line-through",
                       whiteSpace: "nowrap",
@@ -301,7 +477,7 @@ export function ProductCard({
               ) : (
                 <Typography
                   sx={{
-                    fontSize: { xs: 16, sm: 18, md: 20 },
+                    fontSize: { xs: 18, sm: 20, md: 22 },
                     fontWeight: "bold",
                     color: "#d2b26b",
                     fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
@@ -314,7 +490,7 @@ export function ProductCard({
               {unit && (
                 <Typography
                   sx={{
-                    fontSize: { xs: 10, sm: 11, md: 12 },
+                    fontSize: { xs: 11, sm: 12 },
                     color: "rgba(233,242,241,.6)",
                     whiteSpace: "nowrap",
                   }}
@@ -353,7 +529,7 @@ export function ProductCard({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            minHeight: { xs: 100, sm: 120, md: 150 },
+            minHeight: { xs: 120, sm: 150, md: 180 },
           }}
         >
           <Box
@@ -362,9 +538,13 @@ export function ProductCard({
             alt={name.en}
             sx={{
               width: "100%",
-              maxHeight: { xs: 100, sm: 130, md: 150 },
+              maxHeight: { xs: 120, sm: 150, md: 180 },
               objectFit: "contain",
               borderRadius: 1,
+              transition: "transform 0.3s ease",
+              "&:hover": {
+                transform: "scale(1.05)",
+              },
             }}
           />
         </Box>
@@ -408,7 +588,7 @@ export function ProductCard({
   );
 }
 
-function Badge({ children }) {
+function Badge({ children, sx }) {
   return (
     <Box
       sx={{
@@ -423,6 +603,7 @@ function Badge({ children }) {
         borderRadius: "999px",
         whiteSpace: "nowrap",
         lineHeight: "normal",
+        ...sx,
       }}
     >
       {children}
@@ -445,10 +626,13 @@ function ActionButton({ children, ...props }) {
         py: 1.2,
         borderRadius: 2,
         cursor: "pointer",
+        transition: "all 0.2s ease",
         "&:hover": {
-          background: "rgba(210,178,107,.08)",
-          borderColor: "rgba(210,178,107,.28)",
+          background: "rgba(210,178,107,.12)",
+          borderColor: "rgba(210,178,107,.35)",
+          color: "#d2b26b",
         },
+        ...props.sx,
       }}
     >
       {children}
