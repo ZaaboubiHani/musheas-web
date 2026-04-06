@@ -9,10 +9,11 @@ import B2b from "../pages/B2b";
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route element={<StoreLayout/>}>
+      <Route element={<StoreLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout/product/:productId" element={<Checkout />} />
         <Route path="/store" element={<Store />} />
         <Route path="/b2b" element={<B2b />} />
       </Route>

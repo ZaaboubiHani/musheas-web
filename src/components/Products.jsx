@@ -1,18 +1,13 @@
 import {
   Box,
-  Button,
   Container,
   Grid,
   Stack,
   Typography,
-  Card,
   Skeleton,
-  CardContent,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import { GoldButton } from "./Header";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProducts } from "../providers/ProductProvider";
 import { useCart } from "../providers/CartProvider";
@@ -22,27 +17,23 @@ import { useSnackbar } from "../providers/SnackbarProvider";
 
 export default function Products() {
   const { t, i18n } = useTranslation();
-  const { randomProducts, randomProductsLoading, fetchRandomProducts } = useProducts();
+  const { randomProducts, randomProductsLoading, fetchRandomProducts } =
+    useProducts();
   const { addToCart } = useCart();
   const { section } = useSection();
   const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
-    fetchRandomProducts(4); // Fetch 4 random products
+    fetchRandomProducts(4);
   }, []);
 
   const handleAddToCartAndCheckout = (product, type) => {
-    // Add product to cart with quantity 1
     addToCart(product, 1);
-
-    // Show success message
     showSnackbar(
       t("products.addedToCart", { name: product.name[i18n.language] }),
       "success",
     );
-
-    // Navigate to checkout with the selected type
     navigate("/checkout", {
       state: {
         requestType: type,
@@ -51,8 +42,20 @@ export default function Products() {
     });
   };
 
+  const handleRequestOnly = (product, type) => {
+    // Navigate to checkout with product data WITHOUT adding to cart
+    navigate(`/checkout/product/${product._id}`, {
+      state: {
+        requestType: type,
+        requestOrigin: product.productType === "b2b" ? "company" : "client",
+        singleProduct: product, // Pass the product data
+        quantity: 1, // Default quantity
+      },
+    });
+  };
+
   return (
-    <Box component="section" id="products" sx={{ py: 7 }}>
+    <Box component="section" id="products" sx={{ pb: 8 }}>
       <Container maxWidth="lg">
         {/* Section Head */}
         <Stack
@@ -60,35 +63,38 @@ export default function Products() {
           alignItems={{ md: "flex-end" }}
           justifyContent="space-between"
           gap={2}
-          mb={3}
+          mb={4}
+          className="animate-fade-in-up"
+          sx={{ opacity: 0 }}
         >
           <Box>
             <Typography
               component="h2"
               sx={{
-                fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
-                fontSize: 28,
+                fontFamily:
+                  'var(--font-serif, "Literata", ui-serif, Georgia, "Times New Roman", serif)',
+                fontSize: { xs: 26, md: 30 },
                 letterSpacing: "0.03em",
                 color: "primary.main",
               }}
             >
-              {section?.productsTitle[i18n.language]}
+              {section?.productsTitle?.[i18n.language]}
             </Typography>
-
             <Typography
               sx={{
-                mt: 0.5,
+                mt: 0.75,
                 fontSize: 14,
                 maxWidth: "60ch",
-                lineHeight: 1.6,
-                color: "rgba(233,242,241,.72)",
+                lineHeight: 1.65,
+                color: "rgba(233,242,241,.68)",
               }}
             >
-              {section?.productsSubtitle[i18n.language]}
+              {section?.productsSubtitle?.[i18n.language]}
             </Typography>
           </Box>
-
-          <GoldButton href="#contact">{t("products.quote")}</GoldButton>
+          <GoldButton href="#contact" sx={{ flexShrink: 0 }}>
+            {t("products.quote")}
+          </GoldButton>
         </Stack>
 
         {/* Products Grid */}
@@ -99,16 +105,21 @@ export default function Products() {
                   <ProductSkeleton />
                 </Grid>
               ))
-            : randomProducts.map((product) => (
-                <Grid key={product._id} size={{ xs: 12, sm: 6, md: 3 }}>
+            : randomProducts.map((product, index) => (
+                <Grid
+                  key={product._id}
+                  size={{ xs: 12, sm: 6, md: 3 }}
+                  className="animate-fade-in-up"
+                  sx={{ opacity: 0, animationDelay: `${index * 80}ms` }}
+                >
                   <ProductCard
                     {...product}
                     onClick={() => navigate(`/products/${product._id}`)}
                     onRequestSamples={() =>
-                      handleAddToCartAndCheckout(product, "samples")
+                      handleRequestOnly(product, "samples")
                     }
                     onRequestTds={() =>
-                      handleAddToCartAndCheckout(product, "tds")
+                      handleRequestOnly(product, "tds")
                     }
                   />
                 </Grid>
@@ -121,22 +132,52 @@ export default function Products() {
 
 function ProductSkeleton() {
   return (
-    <Card
+    <Box
       sx={{
-        borderRadius: 2,
-        background: "rgba(255,255,255,0.04)",
-        backdropFilter: "blur(6px)",
+        borderRadius: 4,
+        border: "1px solid rgba(210,178,107,.1)",
+        background:
+          "linear-gradient(180deg, rgba(15,46,51,.8), rgba(10,30,34,.8))",
+        overflow: "hidden",
       }}
     >
-      <Skeleton variant="rectangular" height={140} />
-      <CardContent>
-        <Stack spacing={1}>
-          <Skeleton variant="text" width="60%" />
-          <Skeleton variant="text" width="90%" />
-          <Skeleton variant="text" width="40%" />
-        </Stack>
-      </CardContent>
-    </Card>
+      <Box sx={{ p: 2 }}>
+        <Skeleton
+          variant="text"
+          width="65%"
+          height={24}
+          sx={{ bgcolor: "rgba(210,178,107,.08)" }}
+        />
+        <Skeleton
+          variant="text"
+          width="90%"
+          sx={{ bgcolor: "rgba(210,178,107,.06)" }}
+        />
+        <Skeleton
+          variant="text"
+          width="45%"
+          sx={{ bgcolor: "rgba(210,178,107,.06)" }}
+        />
+      </Box>
+      <Skeleton
+        variant="rectangular"
+        height={140}
+        sx={{ bgcolor: "rgba(210,178,107,.05)", mx: 2, mb: 2, borderRadius: 2 }}
+        animation="wave"
+      />
+      <Stack direction="row" gap={1} px={2} pb={2}>
+        <Skeleton
+          variant="rectangular"
+          height={36}
+          sx={{ flex: 1, borderRadius: 2, bgcolor: "rgba(210,178,107,.06)" }}
+        />
+        <Skeleton
+          variant="rectangular"
+          height={36}
+          sx={{ flex: 1, borderRadius: 2, bgcolor: "rgba(210,178,107,.06)" }}
+        />
+      </Stack>
+    </Box>
   );
 }
 
@@ -156,7 +197,6 @@ export function ProductCard({
 }) {
   const { t, i18n } = useTranslation();
 
-  // Helper function to format price in DZD
   const formatPrice = (value) => {
     if (!value && value !== 0) return null;
     return new Intl.NumberFormat(i18n.language === "fr" ? "fr-DZ" : "en-DZ", {
@@ -167,7 +207,6 @@ export function ProductCard({
     }).format(value);
   };
 
-  // Helper function to get unit label in current language
   const getUnitLabel = (unitValue) => {
     const unitLabels = {
       kg: { en: "kg", fr: "kg" },
@@ -197,20 +236,30 @@ export function ProductCard({
       {...props}
       sx={{
         height: "100%",
-        borderRadius: { xs: 2, sm: 4 },
-        border: "1px solid rgba(210,178,107,.14)",
+        borderRadius: 4,
+        border: "1px solid rgba(210,178,107,.13)",
         cursor: "pointer",
         background:
           "linear-gradient(180deg, rgba(15,46,51,.92), rgba(10,30,34,.92))",
-        boxShadow: "0 20px 55px rgba(0,0,0,.35)",
+        boxShadow: "0 16px 48px rgba(0,0,0,.3)",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
+        transition:
+          "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
+        "&:hover": {
+          transform: "translateY(-5px) scale(1.01)",
+          boxShadow:
+            "0 28px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(210,178,107,.2)",
+          borderColor: "rgba(210,178,107,.28)",
+        },
+        "&:hover .product-image": {
+          transform: "scale(1.06)",
+        },
       }}
     >
-      {/* Top */}
-      <Box p={{ xs: 1.5, sm: 2 }}>
-        {/* Row 1: Name + Badge */}
+      {/* Top info */}
+      <Box p={2}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -219,120 +268,108 @@ export function ProductCard({
         >
           <Typography
             sx={{
-              fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
-              fontSize: { xs: 14, sm: 16, md: 18 },
+              fontFamily:
+                'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+              fontSize: { xs: 14, sm: 16 },
               letterSpacing: "0.02em",
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
-              textOverflow: "ellipsis",
               flex: 1,
               wordBreak: "break-word",
+              lineHeight: 1.3,
             }}
           >
             {name[i18n.language]}
           </Typography>
-
           {badge?.[i18n.language] && (
-            <Badge
-              sx={{
-                flexShrink: 0,
-                fontSize: { xs: 10, sm: 12 },
-              }}
-            >
-              {badge[i18n.language]}
-            </Badge>
+            <PillBadge>{badge[i18n.language]}</PillBadge>
           )}
         </Stack>
 
-        {/* Row 2: Description */}
         <Typography
           sx={{
-            mt: 0.5,
-            fontSize: { xs: 11, sm: 12, md: 13 },
-            lineHeight: 1.4,
-            color: "rgba(233,242,241,.7)",
+            mt: 0.75,
+            fontSize: { xs: 11, sm: 12 },
+            lineHeight: 1.5,
+            color: "rgba(233,242,241,.65)",
             display: "-webkit-box",
-            WebkitLineClamp: { xs: 2, sm: 3 },
+            WebkitLineClamp: 3,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
-            textOverflow: "ellipsis",
-            wordBreak: "break-word",
           }}
         >
           {description[i18n.language]}
         </Typography>
 
-        {/* Price Section - Mobile Responsive */}
         {price && productType === "regular" && (
-          <Box sx={{ mt: 1 }}>
-            <Stack
-              direction="row"
-              alignItems="baseline"
-              flexWrap="wrap"
-              spacing={0.5}
-              sx={{ gap: { xs: 0.5, sm: 1 } }}
-            >
-              {hasDiscount ? (
-                <>
-                  <Typography
-                    sx={{
-                      fontSize: { xs: 16, sm: 18, md: 20 },
-                      fontWeight: "bold",
-                      color: "#d2b26b",
-                      fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {formattedDiscountPrice}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: { xs: 12, sm: 13, md: 14 },
-                      color: "rgba(233,242,241,.5)",
-                      textDecoration: "line-through",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {formattedPrice}
-                  </Typography>
-                </>
-              ) : (
+          <Stack
+            direction="row"
+            alignItems="baseline"
+            gap={0.75}
+            mt={1.25}
+            flexWrap="wrap"
+          >
+            {hasDiscount ? (
+              <>
                 <Typography
                   sx={{
-                    fontSize: { xs: 16, sm: 18, md: 20 },
-                    fontWeight: "bold",
+                    fontSize: { xs: 16, md: 18 },
+                    fontWeight: 700,
                     color: "#d2b26b",
-                    fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
+                    fontFamily:
+                      'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {formattedDiscountPrice}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 12,
+                    color: "rgba(233,242,241,.45)",
+                    textDecoration: "line-through",
                     whiteSpace: "nowrap",
                   }}
                 >
                   {formattedPrice}
                 </Typography>
-              )}
-              {unit && (
-                <Typography
-                  sx={{
-                    fontSize: { xs: 10, sm: 11, md: 12 },
-                    color: "rgba(233,242,241,.6)",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  / {getUnitLabel(unit)}
-                </Typography>
-              )}
-            </Stack>
-          </Box>
+              </>
+            ) : (
+              <Typography
+                sx={{
+                  fontSize: { xs: 16, md: 18 },
+                  fontWeight: 700,
+                  color: "#d2b26b",
+                  fontFamily:
+                    'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {formattedPrice}
+              </Typography>
+            )}
+            {unit && (
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color: "rgba(233,242,241,.5)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                / {getUnitLabel(unit)}
+              </Typography>
+            )}
+          </Stack>
         )}
 
-        {/* Row 3: Category */}
         {categoryName?.[i18n.language] && (
           <Typography
             sx={{
               mt: 0.75,
-              fontSize: { xs: 10, sm: 11, md: 12 },
-              color: "rgba(210,178,107,.9)",
+              fontSize: 11,
+              color: "rgba(210,178,107,.85)",
               fontWeight: 500,
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -348,81 +385,71 @@ export function ProductCard({
       {imageUrls?.[0] && (
         <Box
           sx={{
-            px: { xs: 1.5, sm: 2 },
+            px: 2,
             flexGrow: 1,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            minHeight: { xs: 100, sm: 120, md: 150 },
+            minHeight: { xs: 110, md: 140 },
+            overflow: "hidden",
           }}
         >
           <Box
             component="img"
+            className="product-image"
             src={imageUrls[0]}
             alt={name.en}
             sx={{
               width: "100%",
-              maxHeight: { xs: 100, sm: 130, md: 150 },
+              maxHeight: { xs: 110, md: 140 },
               objectFit: "contain",
-              borderRadius: 1,
+              borderRadius: 2,
+              transition: "transform 0.4s ease",
             }}
           />
         </Box>
       )}
 
       {/* Actions */}
-      <Stack
-        direction="row"
-        gap={{ xs: 0.75, sm: 1.2 }}
-        px={{ xs: 1.5, sm: 2 }}
-        pb={{ xs: 1.5, sm: 2 }}
-        mt={1.5}
-      >
-        <ActionButton
+      <Stack direction="row" gap={1} px={2} pb={2} mt={1.5}>
+        <CardActionButton
           onClick={(e) => {
             e.stopPropagation();
             onRequestTds();
           }}
-          sx={{
-            fontSize: { xs: 11, sm: 12 },
-            py: { xs: 0.5, sm: 0.75 },
-          }}
         >
           {t("products.tds")}
-        </ActionButton>
-
-        <ActionButton
+        </CardActionButton>
+        <CardActionButton
           onClick={(e) => {
             e.stopPropagation();
             onRequestSamples();
           }}
-          sx={{
-            fontSize: { xs: 11, sm: 12 },
-            py: { xs: 0.5, sm: 0.75 },
-          }}
         >
           {t("products.samples")}
-        </ActionButton>
+        </CardActionButton>
       </Stack>
     </Box>
   );
 }
 
-function Badge({ children }) {
+function PillBadge({ children }) {
   return (
     <Box
       sx={{
         display: "inline-block",
-        fontSize: 11,
-        letterSpacing: "0.12em",
+        fontSize: 10,
+        letterSpacing: "0.1em",
         textTransform: "uppercase",
-        border: "1px solid rgba(210,178,107,.18)",
-        background: "rgba(210,178,107,.06)",
-        px: 1.1,
-        py: 0.7,
+        border: "1px solid rgba(210,178,107,.2)",
+        background: "rgba(210,178,107,.07)",
+        color: "rgba(210,178,107,.9)",
+        px: 1.2,
+        py: 0.5,
         borderRadius: "999px",
         whiteSpace: "nowrap",
         lineHeight: "normal",
+        flexShrink: 0,
       }}
     >
       {children}
@@ -430,7 +457,7 @@ function Badge({ children }) {
   );
 }
 
-function ActionButton({ children, ...props }) {
+function CardActionButton({ children, ...props }) {
   return (
     <Box
       component="button"
@@ -438,17 +465,22 @@ function ActionButton({ children, ...props }) {
       sx={{
         flex: 1,
         fontSize: 12,
-        color: "rgba(233,242,241,.85)",
-        border: "1px solid rgba(210,178,107,.14)",
+        color: "rgba(233,242,241,.8)",
+        border: "1px solid rgba(210,178,107,.13)",
         background: "rgba(255,255,255,.02)",
         px: 1.5,
-        py: 1.2,
-        borderRadius: 2,
+        py: 1,
+        borderRadius: "10px",
         cursor: "pointer",
+        transition: "all 0.2s ease",
+        fontFamily: "inherit",
         "&:hover": {
-          background: "rgba(210,178,107,.08)",
-          borderColor: "rgba(210,178,107,.28)",
+          background: "rgba(210,178,107,.1)",
+          borderColor: "rgba(210,178,107,.32)",
+          color: "#d2b26b",
+          transform: "translateY(-1px)",
         },
+        ...props.sx,
       }}
     >
       {children}

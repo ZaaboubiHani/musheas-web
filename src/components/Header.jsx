@@ -12,10 +12,8 @@ import {
   Divider,
   List,
   ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   IconButton as MuiIconButton,
-  TextField,
+  Fade,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -44,9 +42,16 @@ export default function Header() {
 
   const handleNavigation = (path) => {
     navigate(path);
-    // Close mobile drawer if open
     if (open) setOpen(false);
   };
+
+  const navLinks = [
+    { path: "/", label: t("header.home") || "Home" },
+    { path: "/store", label: t("header.store") || "Store" },
+    { path: "/b2b", label: t("header.b2b") || "B2B" },
+  ];
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <>
@@ -54,13 +59,11 @@ export default function Header() {
         position="sticky"
         elevation={0}
         sx={{
-          background: `linear-gradient(
-      180deg,
-      rgba(8, 22, 24, 0.82),
-      rgba(8, 22, 24, 0.55)
-    )`,
-          backdropFilter: "blur(6px)",
-          borderBottom: "1px solid rgba(210, 178, 107, 0.12)",
+          background: `linear-gradient(180deg, rgba(8,22,24,0.88), rgba(8,22,24,0.60))`,
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(210,178,107,0.12)",
+          transition: "background 0.3s ease",
+          
         }}
       >
         <Container maxWidth="lg">
@@ -68,100 +71,121 @@ export default function Header() {
             direction="row"
             alignItems="center"
             justifyContent="space-between"
-            py={2}
+            py={1.5}
             gap={2}
           >
-            {/* Brand - Clickable to go home */}
-            <Stack 
-              direction="row" 
-              alignItems="center" 
-              gap={1}
+            {/* Brand */}
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={1.5}
               component={Link}
               to="/"
-              sx={{ 
-                cursor: "pointer", 
+              sx={{
+                cursor: "pointer",
                 textDecoration: "none",
-                "&:hover": {
-                  opacity: 0.9,
-                }
+                transition: "opacity 0.2s ease",
+                "&:hover": { opacity: 0.85 },
               }}
             >
               <Logo />
               <Typography
                 sx={{
-                  fontFamily: 'ui-serif, "Times New Roman", Georgia, serif',
+                  fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
                   fontWeight: 700,
                   fontSize: 20,
                   color: "primary.main",
+                  letterSpacing: "0.02em",
                 }}
               >
                 MUSHEAS
               </Typography>
             </Stack>
 
-            {/* Menu - Navigation Links */}
+            {/* Desktop Nav */}
             {!isMobile && (
               <Stack
                 direction="row"
-                gap={2}
+                gap={0.5}
                 sx={{
                   fontSize: 13,
-                  letterSpacing: "0.08em",
+                  letterSpacing: "0.1em",
                   textTransform: "uppercase",
                 }}
               >
-                <Button
-                  onClick={() => handleNavigation("/")}
-                  sx={{
-                    color: "text.primary",
-                    borderRadius: 2,
-                    "&:hover": {
-                      backgroundColor: "rgba(210,178,107,0.08)",
-                    },
-                  }}
-                >
-                  {t("header.home") || "Home"}
-                </Button>
-
-                <Button
-                  onClick={() => handleNavigation("/store")}
-                  sx={{
-                    color: "text.primary",
-                    borderRadius: 2,
-                    "&:hover": {
-                      backgroundColor: "rgba(210,178,107,0.08)",
-                    },
-                  }}
-                >
-                  {t("header.store") || "Store"}
-                </Button>
-
-                <Button
-                  onClick={() => handleNavigation("/b2b")}
-                  sx={{
-                    color: "text.primary",
-                    borderRadius: 2,
-                    "&:hover": {
-                      backgroundColor: "rgba(210,178,107,0.08)",
-                    },
-                  }}
-                >
-                  {t("header.b2b") || "B2B"}
-                </Button>
-
+                {navLinks.map((link) => (
+                  <Button
+                    key={link.path}
+                    onClick={() => handleNavigation(link.path)}
+                    sx={{
+                      color: isActive(link.path)
+                        ? "primary.main"
+                        : "rgba(233,242,241,0.85)",
+                      borderRadius: "10px",
+                      px: 2,
+                      py: 1,
+                      fontSize: 13,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      position: "relative",
+                      transition: "all 0.2s ease",
+                      "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        bottom: 4,
+                        left: "50%",
+                        transform: isActive(link.path)
+                          ? "translateX(-50%) scaleX(1)"
+                          : "translateX(-50%) scaleX(0)",
+                        width: "60%",
+                        height: "1.5px",
+                        background: "rgba(210,178,107,0.7)",
+                        transformOrigin: "center",
+                        transition: "transform 0.25s ease",
+                      },
+                      "&:hover": {
+                        backgroundColor: "rgba(210,178,107,0.08)",
+                        color: "rgba(233,242,241,1)",
+                        "&::after": {
+                          transform: "translateX(-50%) scaleX(1)",
+                        },
+                      },
+                    }}
+                  >
+                    {link.label}
+                  </Button>
+                ))}
                 <LanguageSwitcher />
               </Stack>
             )}
 
-            {/* CTA and Cart */}
-            <Stack direction="row" gap={1}>
-              {/* Cart Icon */}
+            {/* Right CTAs */}
+            <Stack direction="row" gap={1} alignItems="center">
+              {!isMobile && (
+                <>
+                  <GoldButton onClick={() => handleNavigation("/")}>
+                    {t("header.requestCatalog")}
+                  </GoldButton>
+                  <PrimaryGoldButton onClick={() => handleNavigation("/b2b")}>
+                    {t("header.samples")}
+                  </PrimaryGoldButton>
+                </>
+              )}
+
+              {/* Cart */}
               <IconButton
                 onClick={() => setCartOpen(true)}
                 sx={{
-                  border: "1px solid rgba(210,178,107,0.18)",
-                  borderRadius: 2,
-                  position: "relative",
+                  border: "1px solid rgba(210,178,107,0.2)",
+                  borderRadius: "10px",
+                  width: 40,
+                  height: 40,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "rgba(210,178,107,0.08)",
+                    borderColor: "rgba(210,178,107,0.38)",
+                    transform: "scale(1.04)",
+                  },
                 }}
               >
                 <MuiBadge
@@ -171,10 +195,11 @@ export default function Header() {
                       backgroundColor: "#d2b26b",
                       color: "#0a1e22",
                       fontWeight: "bold",
+                      fontSize: 10,
                     },
                   }}
                 >
-                  <ShoppingCartIcon sx={{ color: "rgba(210,178,107,.8)" }} />
+                  <ShoppingCartIcon sx={{ color: "rgba(210,178,107,.85)", fontSize: 20 }} />
                 </MuiBadge>
               </IconButton>
 
@@ -182,11 +207,17 @@ export default function Header() {
                 <IconButton
                   onClick={() => setOpen(true)}
                   sx={{
-                    border: "1px solid rgba(210,178,107,0.18)",
-                    borderRadius: 2,
+                    border: "1px solid rgba(210,178,107,0.2)",
+                    borderRadius: "10px",
+                    width: 40,
+                    height: 40,
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      backgroundColor: "rgba(210,178,107,0.08)",
+                    },
                   }}
                 >
-                  <MenuIcon />
+                  <MenuIcon sx={{ color: "rgba(233,242,241,0.85)", fontSize: 20 }} />
                 </IconButton>
               )}
             </Stack>
@@ -202,8 +233,8 @@ export default function Header() {
 
 function Logo() {
   return (
-    <Box sx={{ width: 34, height: 34 }}>
-      <svg viewBox="0 0 64 64" width="34" height="34" fill="none">
+    <Box sx={{ width: 32, height: 32, flexShrink: 0 }}>
+      <svg viewBox="0 0 64 64" width="32" height="32" fill="none">
         <path
           d="M12 28c0-10 9-18 20-18s20 8 20 18H12z"
           stroke="rgba(210,178,107,.95)"
@@ -233,17 +264,21 @@ export function GoldButton({ children, ...props }) {
       variant="outlined"
       {...props}
       sx={{
-        borderColor: "rgba(210,178,107,0.28)",
-        backgroundColor: "rgba(210,178,107,0.12)",
-        color: "text.primary",
-        borderRadius: 2,
-        transition: "all 0.3s ease",
+        borderColor: "rgba(210,178,107,0.3)",
+        backgroundColor: "rgba(210,178,107,0.08)",
+        color: "rgba(233,242,241,0.9)",
+        borderRadius: "10px",
+        transition: "all 0.22s ease",
         px: 2,
+        fontSize: 13,
+        fontWeight: 500,
         "&:hover": {
-          backgroundColor: "rgba(210,178,107,0.16)",
-          borderColor: "rgba(210,178,107,0.42)",
+          backgroundColor: "rgba(210,178,107,0.14)",
+          borderColor: "rgba(210,178,107,0.5)",
           transform: "translateY(-1px)",
+          boxShadow: "0 4px 12px rgba(210,178,107,0.12)",
         },
+        ...props.sx,
       }}
     >
       {children}
@@ -256,16 +291,20 @@ export function PrimaryGoldButton({ children, ...props }) {
     <Button
       {...props}
       sx={{
-        background:
-          "linear-gradient(135deg, rgba(210,178,107,.92), rgba(184,144,63,.92))",
+        background: "linear-gradient(135deg, rgba(210,178,107,.92), rgba(184,144,63,.92))",
         color: "#102125",
-        borderRadius: 2,
+        borderRadius: "10px",
         px: 2,
-        transition: "all 0.3s ease",
-        boxShadow: "0 16px 40px rgba(210,178,107,.18)",
+        fontSize: 13,
+        fontWeight: 600,
+        transition: "all 0.22s ease",
+        boxShadow: "0 4px 18px rgba(210,178,107,.15)",
         "&:hover": {
-          transform: "translateY(-1px) scale(1.01)",
+          background: "linear-gradient(135deg, #d2b26b, #b8903f)",
+          transform: "translateY(-1px) scale(1.02)",
+          boxShadow: "0 8px 24px rgba(210,178,107,.25)",
         },
+        ...props.sx,
       }}
     >
       {children}
@@ -283,72 +322,91 @@ export function MobileDrawer({ open, onClose }) {
   };
 
   return (
-    <Drawer anchor="right" open={open} onClose={onClose}>
-      <Stack
-        p={3}
-        gap={2}
-        width={260}
-        sx={{
-          height: "100%",
-          background: `linear-gradient(
-            180deg,
-            rgba(8, 22, 24, 0.95),
-            rgba(8, 22, 24, 0.75)
-          )`,
-          backdropFilter: "blur(6px)",
-        }}
-      >
-        <Button
-          onClick={() => handleNavigation("/")}
-          sx={{
-            color: "text.primary",
-          }}
-        >
-          {t("header.home") || "Home"}
-        </Button>
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        sx: {
+          width: 280,
+          background: "linear-gradient(180deg, rgba(8,22,24,0.98), rgba(8,22,24,0.95))",
+          backdropFilter: "blur(16px)",
+          borderLeft: "1px solid rgba(210,178,107,0.12)",
+        },
+      }}
+    >
+      <Stack p={3} gap={1} height="100%">
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+              color: "primary.main",
+              fontSize: 18,
+              fontWeight: 700,
+            }}
+          >
+            MUSHEAS
+          </Typography>
+          <IconButton
+            onClick={onClose}
+            size="small"
+            sx={{ color: "rgba(233,242,241,0.6)", "&:hover": { color: "#d2b26b" } }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Stack>
 
-        <Button
-          onClick={() => handleNavigation("/store")}
-          sx={{
-            color: "text.primary",
-          }}
-        >
-          {t("header.store") || "Store"}
-        </Button>
+        <Divider sx={{ borderColor: "rgba(210,178,107,0.1)", mb: 1 }} />
 
-        <Button
-          onClick={() => handleNavigation("/b2b")}
-          sx={{
-            color: "text.primary",
-          }}
-        >
-          {t("header.b2b") || "B2B"}
-        </Button>
+        {[
+          { path: "/", label: t("header.home") || "Home" },
+          { path: "/store", label: t("header.store") || "Store" },
+          { path: "/b2b", label: t("header.b2b") || "B2B" },
+        ].map((link) => (
+          <Button
+            key={link.path}
+            fullWidth
+            onClick={() => handleNavigation(link.path)}
+            sx={{
+              color: "rgba(233,242,241,0.85)",
+              justifyContent: "flex-start",
+              borderRadius: "10px",
+              py: 1.2,
+              px: 2,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              fontSize: 13,
+              "&:hover": {
+                backgroundColor: "rgba(210,178,107,0.08)",
+                color: "#d2b26b",
+              },
+            }}
+          >
+            {link.label}
+          </Button>
+        ))}
 
-        <LanguageSwitcher />
+        <Box flexGrow={1} />
 
-        <GoldButton onClick={() => handleNavigation("/store")}>
-          {t("header.requestCatalog")}
-        </GoldButton>
-        <PrimaryGoldButton onClick={() => handleNavigation("/store")}>
-          {t("header.samples")}
-        </PrimaryGoldButton>
+        <Stack gap={1.5} pb={1}>
+          <GoldButton fullWidth onClick={() => handleNavigation("/")}>
+            {t("header.requestCatalog")}
+          </GoldButton>
+          <PrimaryGoldButton fullWidth onClick={() => handleNavigation("/b2b")}>
+            {t("header.samples")}
+          </PrimaryGoldButton>
+          <Box pt={1}>
+            <LanguageSwitcher />
+          </Box>
+        </Stack>
       </Stack>
     </Drawer>
   );
 }
 
-// Cart Drawer Component
 function CartDrawer({ open, onClose }) {
   const { t, i18n } = useTranslation();
-  const {
-    items,
-    removeFromCart,
-    updateQuantity,
-    cartTotal,
-    cartCount,
-    clearCart,
-  } = useCart();
+  const { items, removeFromCart, updateQuantity, cartTotal, cartCount, clearCart } = useCart();
   const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
 
@@ -364,14 +422,10 @@ function CartDrawer({ open, onClose }) {
 
   const getUnitLabel = (unitValue) => {
     const units = {
-      kg: "kg",
-      g: "g",
-      lb: "lb",
-      oz: "oz",
+      kg: "kg", g: "g", lb: "lb", oz: "oz",
       piece: t("products.piece") || "pièce",
       dozen: t("products.dozen") || "douzaine",
-      liter: "L",
-      ml: "ml",
+      liter: "L", ml: "ml",
       gallon: t("products.gallon") || "gallon",
       box: t("products.box") || "boîte",
       pack: t("products.pack") || "paquet",
@@ -380,48 +434,26 @@ function CartDrawer({ open, onClose }) {
   };
 
   const handleQuantityChange = (productId, newQuantity) => {
-    if (newQuantity >= 1) {
-      updateQuantity(productId, newQuantity);
-    }
-  };
-
-  const handleRemoveItem = (productId) => {
-    removeFromCart(productId);
+    if (newQuantity >= 1) updateQuantity(productId, newQuantity);
   };
 
   const handleClearCart = async () => {
     const result = await Swal.fire({
       title: t("cart.clearCartTitle") || "Vider le panier ?",
-      text:
-        t("cart.clearCartConfirm") ||
-        "Êtes-vous sûr de vouloir supprimer tous les articles de votre panier ?",
+      text: t("cart.clearCartConfirm") || "Êtes-vous sûr de vouloir supprimer tous les articles ?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: t("cart.clear") || "Vider",
       cancelButtonText: t("cart.cancel") || "Annuler",
       confirmButtonColor: "#ff6b6b",
-      customClass: {
-        container: "swal2-container-custom",
-      },
       didOpen: () => {
-        // Set higher z-index for the modal
-        const modalContainer = document.querySelector(".swal2-container");
-        if (modalContainer) {
-          modalContainer.style.zIndex = "10000";
-        }
-        const modalPopup = document.querySelector(".swal2-popup");
-        if (modalPopup) {
-          modalPopup.style.zIndex = "10001";
-        }
+        const c = document.querySelector(".swal2-container");
+        if (c) c.style.zIndex = "10000";
       },
     });
-
     if (result.isConfirmed) {
       clearCart();
-      showSnackbar(
-        t("cart.cartCleared") || "Panier vidé avec succès",
-        "success",
-      );
+      showSnackbar(t("cart.cartCleared") || "Panier vidé", "success");
     }
   };
 
@@ -430,20 +462,10 @@ function CartDrawer({ open, onClose }) {
     navigate("/checkout");
   };
 
-  const getItemPrice = (item) => {
-    const price =
-      item.discountPrice &&
-      item.discountPrice > 0 &&
-      item.discountPrice < item.price
-        ? item.discountPrice
-        : item.price;
-    return price;
-  };
-
-  const getItemTotal = (item) => {
-    const price = getItemPrice(item);
-    return price * item.quantity;
-  };
+  const getItemPrice = (item) =>
+    item.discountPrice && item.discountPrice > 0 && item.discountPrice < item.price
+      ? item.discountPrice
+      : item.price;
 
   return (
     <Drawer
@@ -453,8 +475,9 @@ function CartDrawer({ open, onClose }) {
       PaperProps={{
         sx: {
           width: { xs: "100%", sm: 400 },
-          background: `linear-gradient(180deg, rgba(8, 22, 24, 0.98), rgba(8, 22, 24, 0.95))`,
-          backdropFilter: "blur(10px)",
+          background: "linear-gradient(180deg, rgba(8,22,24,0.98), rgba(8,22,24,0.96))",
+          backdropFilter: "blur(12px)",
+          borderLeft: "1px solid rgba(210,178,107,0.1)",
         },
       }}
     >
@@ -463,67 +486,41 @@ function CartDrawer({ open, onClose }) {
         direction="row"
         alignItems="center"
         justifyContent="space-between"
-        sx={{
-          p: 2,
-          borderBottom: "1px solid rgba(210,178,107,0.12)",
-        }}
+        sx={{ p: 2.5, borderBottom: "1px solid rgba(210,178,107,0.1)" }}
       >
         <Typography
           sx={{
-            fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
+            fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
             fontSize: 20,
-            fontWeight: 600,
+            fontWeight: 700,
             color: "primary.main",
           }}
         >
           {t("cart.title") || "Mon Panier"} ({cartCount})
         </Typography>
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon sx={{ color: "rgba(233,242,241,.7)" }} />
+        <IconButton
+          onClick={onClose}
+          size="small"
+          sx={{ color: "rgba(233,242,241,.6)", "&:hover": { color: "#d2b26b" } }}
+        >
+          <CloseIcon />
         </IconButton>
       </Stack>
 
-      {/* Cart Items */}
       {items.length === 0 ? (
-        <Stack
-          sx={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            p: 3,
-          }}
-        >
-          <ShoppingCartIcon
-            sx={{
-              fontSize: 64,
-              color: "rgba(210,178,107,.3)",
-              mb: 2,
-            }}
-          />
-          <Typography
-            sx={{
-              color: "rgba(233,242,241,.6)",
-              textAlign: "center",
-              mb: 2,
-            }}
-          >
+        <Stack sx={{ flex: 1, alignItems: "center", justifyContent: "center", p: 4 }}>
+          <ShoppingCartIcon sx={{ fontSize: 56, color: "rgba(210,178,107,.2)", mb: 2 }} />
+          <Typography sx={{ color: "rgba(233,242,241,.55)", textAlign: "center", mb: 3 }}>
             {t("cart.empty") || "Votre panier est vide"}
           </Typography>
-          <GoldButton onClick={onClose}>
-            {t("cart.continueShopping") || "Continuer vos achats"}
-          </GoldButton>
+          <GoldButton onClick={onClose}>{t("cart.continueShopping") || "Continuer"}</GoldButton>
         </Stack>
       ) : (
         <>
           <List sx={{ flex: 1, overflow: "auto", p: 2 }}>
-            {items.map((item) => {
+            {items.map((item, index) => {
               const itemPrice = getItemPrice(item);
-              const itemTotal = getItemTotal(item);
-              const hasDiscount =
-                item.discountPrice &&
-                item.discountPrice > 0 &&
-                item.discountPrice < item.price;
-
+              const hasDiscount = item.discountPrice && item.discountPrice > 0 && item.discountPrice < item.price;
               return (
                 <Box key={item.cartItemId}>
                   <ListItem
@@ -532,228 +529,124 @@ function CartDrawer({ open, onClose }) {
                       alignItems: "stretch",
                       px: 0,
                       py: 2,
+                      animation: "fadeInUp 0.3s ease forwards",
+                      animationDelay: `${index * 40}ms`,
+                      opacity: 0,
                     }}
                   >
                     <Stack direction="row" spacing={2}>
-                      {/* Product Image */}
                       {item.imageUrls?.[0] && (
                         <Box
                           component="img"
                           src={item.imageUrls[0]}
                           alt={item.name.en}
                           sx={{
-                            width: 80,
-                            height: 80,
+                            width: 72,
+                            height: 72,
                             objectFit: "contain",
-                            borderRadius: 1,
-                            backgroundColor: "rgba(255,255,255,.05)",
+                            borderRadius: "10px",
+                            backgroundColor: "rgba(255,255,255,.04)",
+                            border: "1px solid rgba(210,178,107,.1)",
+                            flexShrink: 0,
                           }}
                         />
                       )}
-
-                      {/* Product Info */}
-                      <Box sx={{ flex: 1 }}>
-                        <Typography
-                          sx={{
-                            fontSize: 14,
-                            fontWeight: 500,
-                            color: "rgba(233,242,241,.9)",
-                            mb: 0.5,
-                          }}
-                        >
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography sx={{ fontSize: 14, fontWeight: 500, color: "rgba(233,242,241,.9)", mb: 0.5, lineHeight: 1.3 }}>
                           {item.name[i18n.language]}
                         </Typography>
-
-                        <Typography
-                          sx={{
-                            fontSize: 12,
-                            color: "rgba(210,178,107,.7)",
-                            mb: 0.5,
-                          }}
-                        >
-                          {item.categoryName?.[i18n.language] &&
-                            `#${item.categoryName[i18n.language]}`}
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            fontSize: 12,
-                            color: "rgba(233,242,241,.6)",
-                            mb: 1,
-                          }}
-                        >
+                        {item.categoryName?.[i18n.language] && (
+                          <Typography sx={{ fontSize: 11, color: "rgba(210,178,107,.65)", mb: 0.5 }}>
+                            #{item.categoryName[i18n.language]}
+                          </Typography>
+                        )}
+                        <Typography sx={{ fontSize: 11, color: "rgba(233,242,241,.5)", mb: 1 }}>
                           {t("products.unit")}: {getUnitLabel(item.unit)}
                         </Typography>
-
                         <Stack direction="row" alignItems="center" spacing={1}>
-                          {/* Quantity Controls */}
                           <Box
                             sx={{
                               display: "flex",
                               alignItems: "center",
                               gap: 0.5,
-                              backgroundColor: "rgba(255,255,255,.05)",
-                              borderRadius: 1,
-                              border: "1px solid rgba(210,178,107,.18)",
+                              backgroundColor: "rgba(255,255,255,.04)",
+                              borderRadius: "8px",
+                              border: "1px solid rgba(210,178,107,.15)",
                             }}
                           >
                             <IconButton
                               size="small"
-                              onClick={() =>
-                                handleQuantityChange(
-                                  item._id,
-                                  item.quantity - 1,
-                                )
-                              }
-                              sx={{
-                                color: "rgba(210,178,107,.8)",
-                                p: 0.5,
-                              }}
+                              onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
+                              sx={{ color: "rgba(210,178,107,.7)", p: 0.5, "&:hover": { color: "#d2b26b" } }}
                             >
-                              <RemoveIcon fontSize="small" />
+                              <RemoveIcon sx={{ fontSize: 14 }} />
                             </IconButton>
-                            <Typography
-                              sx={{
-                                fontSize: 14,
-                                fontWeight: 500,
-                                color: "rgba(233,242,241,.9)",
-                                minWidth: 30,
-                                textAlign: "center",
-                              }}
-                            >
+                            <Typography sx={{ fontSize: 13, fontWeight: 500, color: "rgba(233,242,241,.9)", minWidth: 26, textAlign: "center" }}>
                               {item.quantity}
                             </Typography>
                             <IconButton
                               size="small"
-                              onClick={() =>
-                                handleQuantityChange(
-                                  item._id,
-                                  item.quantity + 1,
-                                )
-                              }
-                              sx={{
-                                color: "rgba(210,178,107,.8)",
-                                p: 0.5,
-                              }}
+                              onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
+                              sx={{ color: "rgba(210,178,107,.7)", p: 0.5, "&:hover": { color: "#d2b26b" } }}
                             >
-                              <AddIcon fontSize="small" />
+                              <AddIcon sx={{ fontSize: 14 }} />
                             </IconButton>
                           </Box>
-
-                          {/* Delete Button */}
                           <IconButton
                             size="small"
-                            onClick={() => handleRemoveItem(item._id)}
-                            sx={{
-                              color: "rgba(210,178,107,.6)",
-                              "&:hover": {
-                                color: "#ff6b6b",
-                              },
-                            }}
+                            onClick={() => removeFromCart(item._id)}
+                            sx={{ color: "rgba(210,178,107,.5)", "&:hover": { color: "#ff6b6b" }, transition: ".2s" }}
                           >
-                            <DeleteIcon fontSize="small" />
+                            <DeleteIcon sx={{ fontSize: 16 }} />
                           </IconButton>
                         </Stack>
                       </Box>
-
-                      {/* Price */}
-                      <Box sx={{ textAlign: "right" }}>
-                        {hasDiscount ? (
-                          <>
-                            <Typography
-                              sx={{
-                                fontSize: 16,
-                                fontWeight: "bold",
-                                color: "#d2b26b",
-                              }}
-                            >
-                              {formatPrice(itemPrice)}
-                            </Typography>
-                            <Typography
-                              sx={{
-                                fontSize: 12,
-                                color: "rgba(233,242,241,.5)",
-                                textDecoration: "line-through",
-                              }}
-                            >
-                              {formatPrice(item.price)}
-                            </Typography>
-                          </>
-                        ) : (
-                          <Typography
-                            sx={{
-                              fontSize: 16,
-                              fontWeight: "bold",
-                              color: "#d2b26b",
-                            }}
-                          >
-                            {formatPrice(itemPrice)}
+                      <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+                        <Typography sx={{ fontSize: 15, fontWeight: "bold", color: "#d2b26b" }}>
+                          {formatPrice(itemPrice)}
+                        </Typography>
+                        {hasDiscount && (
+                          <Typography sx={{ fontSize: 11, color: "rgba(233,242,241,.4)", textDecoration: "line-through" }}>
+                            {formatPrice(item.price)}
                           </Typography>
                         )}
-                        <Typography
-                          sx={{
-                            fontSize: 11,
-                            color: "rgba(233,242,241,.5)",
-                            mt: 0.5,
-                          }}
-                        >
-                          {t("cart.total")}: {formatPrice(itemTotal)}
+                        <Typography sx={{ fontSize: 10, color: "rgba(233,242,241,.45)", mt: 0.5 }}>
+                          {t("cart.total")}: {formatPrice(itemPrice * item.quantity)}
                         </Typography>
                       </Box>
                     </Stack>
                   </ListItem>
-                  <Divider sx={{ borderColor: "rgba(210,178,107,.08)" }} />
+                  <Divider sx={{ borderColor: "rgba(210,178,107,.07)" }} />
                 </Box>
               );
             })}
           </List>
 
-          {/* Footer */}
-          <Box
-            sx={{
-              p: 2,
-              borderTop: "1px solid rgba(210,178,107,0.12)",
-              backgroundColor: "rgba(0,0,0,.3)",
-            }}
-          >
+          <Box sx={{ p: 2.5, borderTop: "1px solid rgba(210,178,107,0.1)", backgroundColor: "rgba(0,0,0,.2)" }}>
             <Stack spacing={2}>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography
-                  sx={{
-                    fontSize: 16,
-                    fontWeight: 500,
-                    color: "rgba(233,242,241,.8)",
-                  }}
-                >
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography sx={{ fontSize: 15, color: "rgba(233,242,241,.75)" }}>
                   {t("cart.subtotal") || "Sous-total"}:
                 </Typography>
-                <Typography
-                  sx={{
-                    fontSize: 20,
-                    fontWeight: "bold",
-                    color: "#d2b26b",
-                  }}
-                >
+                <Typography sx={{ fontSize: 22, fontWeight: "bold", color: "#d2b26b", fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)' }}>
                   {formatPrice(cartTotal)}
                 </Typography>
               </Stack>
-
-              <Stack direction="row" spacing={2}>
+              <Stack direction="row" spacing={1.5}>
                 <Button
                   variant="outlined"
                   onClick={handleClearCart}
-                  startIcon={<DeleteIcon />}
+                  startIcon={<DeleteIcon sx={{ fontSize: 16 }} />}
                   sx={{
                     flex: 1,
-                    borderColor: "rgba(210,178,107,0.28)",
+                    borderColor: "rgba(210,178,107,0.22)",
                     color: "#ff6b6b",
-                    "&:hover": {
-                      borderColor: "#ff6b6b",
-                      backgroundColor: "rgba(255,107,107,0.08)",
-                    },
+                    borderRadius: "10px",
+                    fontSize: 13,
+                    "&:hover": { borderColor: "#ff6b6b", backgroundColor: "rgba(255,107,107,0.07)" },
                   }}
                 >
-                  {t("cart.clear") || "Vider le panier"}
+                  {t("cart.clear") || "Vider"}
                 </Button>
                 <PrimaryGoldButton onClick={handleCheckout} sx={{ flex: 1 }}>
                   {t("cart.checkout") || "Commander"}

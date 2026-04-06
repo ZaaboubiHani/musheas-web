@@ -1,12 +1,11 @@
-import { Box, Container, Stack, Typography, Button, IconButton } from "@mui/material";
-import { GoldButton } from "./Header";
+import { Box, Container, Typography, Grid, Link } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useSection } from "../providers/SectionProvider";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TwitterIcon from "@mui/icons-material/Twitter";
-import TikTokIcon from "@mui/icons-material/MusicNote"; // or use a custom TikTok icon
+import TikTokIcon from "@mui/icons-material/MusicNote";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 
@@ -17,69 +16,129 @@ export default function Footer() {
 
   const socialLinks = section?.socialLinks || {};
 
-  // Define icon mapping and URLs
   const socialItems = [
-    { key: "facebook", icon: <FacebookIcon />, url: socialLinks.facebook, baseUrl: "https://facebook.com/" },
-    { key: "instagram", icon: <InstagramIcon />, url: socialLinks.instagram, baseUrl: "https://instagram.com/" },
-    { key: "linkedin", icon: <LinkedInIcon />, url: socialLinks.linkedin, baseUrl: "https://linkedin.com/in/" },
-    { key: "twitter", icon: <TwitterIcon />, url: socialLinks.twitter, baseUrl: "https://twitter.com/" },
-    { key: "tiktok", icon: <TikTokIcon />, url: socialLinks.tiktok, baseUrl: "https://tiktok.com/@" },
-    { key: "email", icon: <EmailIcon />, url: socialLinks.email, baseUrl: "mailto:" },
-    { key: "phone", icon: <PhoneIcon />, url: socialLinks.phone, baseUrl: "tel:" },
+    {
+      key: "facebook",
+      icon: <FacebookIcon sx={{ fontSize: 18 }} />,
+      label: socialLinks.facebook?.label || "Facebook",
+      url: socialLinks.facebook?.url,
+    },
+    {
+      key: "instagram",
+      icon: <InstagramIcon sx={{ fontSize: 18 }} />,
+      label: socialLinks.instagram?.label || "Instagram",
+      url: socialLinks.instagram?.url,
+    },
+    {
+      key: "linkedin",
+      icon: <LinkedInIcon sx={{ fontSize: 18 }} />,
+      label: socialLinks.linkedin?.label || "LinkedIn",
+      url: socialLinks.linkedin?.url,
+    },
+    {
+      key: "twitter",
+      icon: <TwitterIcon sx={{ fontSize: 18 }} />,
+      label: socialLinks.twitter?.label || "Twitter",
+      url: socialLinks.twitter?.url,
+    },
+    {
+      key: "tiktok",
+      icon: <TikTokIcon sx={{ fontSize: 18 }} />,
+      label: socialLinks.tiktok?.label || "TikTok",
+      url: socialLinks.tiktok?.url,
+    },
+    {
+      key: "email",
+      icon: <EmailIcon sx={{ fontSize: 18 }} />,
+      label: socialLinks.email?.label || "Email",
+      url: socialLinks.email?.url,
+    },
+    {
+      key: "phone",
+      icon: <PhoneIcon sx={{ fontSize: 18 }} />,
+      label: socialLinks.phone?.label || "Phone",
+      url: socialLinks.phone?.url,
+    },
   ];
 
-  // Filter out items with empty URLs
-  const activeSocialLinks = socialItems.filter(item => item.url && item.url !== "");
+  const activeSocialLinks = socialItems.filter(
+    (item) => item.url && item.url !== "",
+  );
+
+  // Helper to get the correct href for email and phone
+  const getHref = (item) => {
+    if (item.key === "email") return `mailto:${item.url}`;
+    if (item.key === "phone") return `tel:${item.url}`;
+    return item.url;
+  };
 
   return (
     <Box
       component="footer"
       sx={{
-        py: "22px",
-        pb: "36px",
-        color: "rgba(233,242,241,.62)",
-        borderTop: "1px solid rgba(210,178,107,.12)",
+        py: "48px",
+        color: "rgba(233,242,241,.5)",
+        borderTop: "1px solid rgba(210,178,107,.1)",
         background:
-          "linear-gradient(180deg, rgba(8,22,24,.25), rgba(8,22,24,.55))",
+          "linear-gradient(180deg, rgba(8,22,24,.2), rgba(8,22,24,.5))",
       }}
     >
       <Container maxWidth="lg">
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={2}
-          alignItems="center"
-          justifyContent="space-between"
-        >
-          {/* Left */}
-          <Typography sx={{ fontSize: 14 }}>
-            © {year} MUSHEAS — {t("footer.slogan")}
-          </Typography>
+        <Grid container spacing={3} alignItems="center">
+          {/* Copyright */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography
+              sx={{
+                fontSize: 13,
+                color: "rgba(233,242,241,.45)",
+                textAlign: { xs: "center", md: "left" },
+              }}
+            >
+              © {year} MUSHEAS — {t("footer.slogan")}
+            </Typography>
+          </Grid>
 
-          {/* Social Links - Right side */}
+          {/* Social Links */}
           {activeSocialLinks.length > 0 && (
-            <Stack direction="row" spacing={1}>
-              {activeSocialLinks.map((item) => (
-                <IconButton
-                  key={item.key}
-                  component="a"
-                  href={item.key === "email" || item.key === "phone" 
-                    ? `${item.baseUrl}${item.url}` 
-                    : `${item.baseUrl}${item.url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{
-                    color: "rgba(233,242,241,.62)",
-                    "&:hover": {
-                      color: "#d2b26b",
-                    },
-                  }}
-                >
-                  {item.icon}
-                </IconButton>
-              ))}
-            </Stack>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: { xs: "center", md: "flex-end" },
+                  flexWrap: "wrap",
+                  gap: 2.5,
+                }}
+              >
+                {activeSocialLinks.map((item) => (
+                  <Link
+                    key={item.key}
+                    href={getHref(item)}
+                    target={item.key === "email" || item.key === "phone" ? "_self" : "_blank"}
+                    rel={item.key !== "email" && item.key !== "phone" ? "noopener noreferrer" : undefined}
+                    underline="none"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 0.75,
+                      color: "rgba(233,242,241,.55)",
+                      fontSize: 13,
+                      whiteSpace: "nowrap",
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        color: "#d2b26b",
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </Box>
+            </Grid>
           )}
-        </Stack>
+        </Grid>
       </Container>
     </Box>
   );
