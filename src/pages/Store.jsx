@@ -26,7 +26,8 @@ import { ProductCard } from "../components/Products";
 
 export default function Store() {
   const { t, i18n } = useTranslation();
-  const { products, productsLoading, fetchProducts, pagination } = useProducts();
+  const { products, productsLoading, fetchProducts, pagination } =
+    useProducts();
   const { addToCart } = useCart();
   const { section } = useSection();
   const navigate = useNavigate();
@@ -63,18 +64,38 @@ export default function Store() {
     addToCart(product, 1);
     showSnackbar(
       t("products.addedToCart", { name: product.name[i18n.language] }),
-      "success"
+      "success",
     );
-    navigate("/checkout", { state: { requestType: type, requestOrigin: "client" } });
+    navigate("/checkout", {
+      state: { requestType: type, requestOrigin: "client" },
+    });
+  };
+
+  const handleRequestOnly = (product, type) => {
+    // Navigate to checkout with product data WITHOUT adding to cart
+    navigate(`/checkout/product/${product._id}`, {
+      state: {
+        requestType: type,
+        requestOrigin: "client",
+        singleProduct: product, // Pass the product data
+        quantity: 1, // Default quantity
+      },
+    });
   };
 
   const sortedProducts = [...products].sort((a, b) => {
     switch (sortBy) {
-      case "price-low": return (a.price || 0) - (b.price || 0);
-      case "price-high": return (b.price || 0) - (a.price || 0);
-      case "name": return (a.name[i18n.language] || "").localeCompare(b.name[i18n.language] || "");
+      case "price-low":
+        return (a.price || 0) - (b.price || 0);
+      case "price-high":
+        return (b.price || 0) - (a.price || 0);
+      case "name":
+        return (a.name[i18n.language] || "").localeCompare(
+          b.name[i18n.language] || "",
+        );
       case "newest":
-      default: return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      default:
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     }
   });
 
@@ -104,7 +125,14 @@ export default function Store() {
             }}
           >
             <StorefrontIcon sx={{ color: "primary.main", fontSize: 15 }} />
-            <Typography sx={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(210,178,107,.9)" }}>
+            <Typography
+              sx={{
+                fontSize: 11,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "rgba(210,178,107,.9)",
+              }}
+            >
               {t("header.store") || "Store"}
             </Typography>
           </Box>
@@ -112,7 +140,8 @@ export default function Store() {
           <Typography
             component="h1"
             sx={{
-              fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, "Times New Roman", serif)',
+              fontFamily:
+                'var(--font-serif, "Literata", ui-serif, Georgia, "Times New Roman", serif)',
               fontSize: { xs: 32, sm: 40, md: 48 },
               fontWeight: 700,
               letterSpacing: "0.03em",
@@ -158,7 +187,11 @@ export default function Store() {
               startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
               onClick={() => navigate("/")}
               size="small"
-              sx={{ color: "rgba(233,242,241,.55)", fontSize: 13, "&:hover": { color: "rgba(233,242,241,.85)" } }}
+              sx={{
+                color: "rgba(233,242,241,.55)",
+                fontSize: 13,
+                "&:hover": { color: "rgba(233,242,241,.85)" },
+              }}
             >
               {t("common.backToHome")}
             </Button>
@@ -180,15 +213,17 @@ export default function Store() {
               label={t("store.perPage")}
               minWidth={90}
             >
-              {[8, 12, 24, 48].map(n => (
-                <MenuItem key={n} value={n}>{n}</MenuItem>
+              {[8, 12, 24, 48].map((n) => (
+                <MenuItem key={n} value={n}>
+                  {n}
+                </MenuItem>
               ))}
             </StyledSelect>
           </Stack>
         </Stack>
 
         {/* Products Grid */}
-        <Grid container spacing={3} >
+        <Grid container spacing={3}>
           {productsLoading
             ? Array.from({ length: limit }).map((_, i) => (
                 <Grid key={i} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
@@ -205,8 +240,12 @@ export default function Store() {
                   <ProductCard
                     {...product}
                     onClick={() => navigate(`/products/${product._id}`)}
-                    onRequestSamples={() => handleAddToCartAndCheckout(product, "samples")}
-                    onRequestTds={() => handleAddToCartAndCheckout(product, "tds")}
+                    onRequestSamples={() =>
+                      handleRequestOnly(product, "samples")
+                    }
+                    onRequestTds={() =>
+                      handleRequestOnly(product, "tds")
+                    }
                   />
                 </Grid>
               ))}
@@ -214,7 +253,9 @@ export default function Store() {
 
         {!productsLoading && sortedProducts.length === 0 && (
           <Box textAlign="center" py={10}>
-            <StorefrontIcon sx={{ fontSize: 52, color: "rgba(210,178,107,.2)", mb: 2 }} />
+            <StorefrontIcon
+              sx={{ fontSize: 52, color: "rgba(210,178,107,.2)", mb: 2 }}
+            />
             <Typography sx={{ color: "rgba(233,242,241,.55)" }}>
               {t("store.noProducts")}
             </Typography>
@@ -257,7 +298,9 @@ export default function Store() {
 function StyledSelect({ value, onChange, label, minWidth = 110, children }) {
   return (
     <FormControl size="small" sx={{ minWidth }}>
-      <InputLabel sx={{ color: "rgba(233,242,241,.55)", fontSize: 13 }}>{label}</InputLabel>
+      <InputLabel sx={{ color: "rgba(233,242,241,.55)", fontSize: 13 }}>
+        {label}
+      </InputLabel>
       <Select
         value={value}
         onChange={onChange}
@@ -266,7 +309,9 @@ function StyledSelect({ value, onChange, label, minWidth = 110, children }) {
           color: "rgba(233,242,241,.85)",
           fontSize: 13,
           borderRadius: "10px",
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(210,178,107,.25)" },
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "rgba(210,178,107,.25)",
+          },
           "& .MuiSvgIcon-root": { color: "rgba(210,178,107,.6)" },
         }}
       >
@@ -282,21 +327,59 @@ function PageProductSkeleton() {
       sx={{
         borderRadius: 4,
         border: "1px solid rgba(210,178,107,.08)",
-        background: "linear-gradient(180deg, rgba(15,46,51,.7), rgba(10,30,34,.7))",
+        background:
+          "linear-gradient(180deg, rgba(15,46,51,.7), rgba(10,30,34,.7))",
         overflow: "hidden",
         height: "100%",
       }}
     >
       <Box sx={{ p: 2 }}>
-        <Skeleton variant="text" width="65%" height={22} sx={{ bgcolor: "rgba(210,178,107,.08)" }} animation="wave" />
-        <Skeleton variant="text" width="90%" sx={{ bgcolor: "rgba(210,178,107,.06)" }} animation="wave" />
-        <Skeleton variant="text" width="45%" sx={{ bgcolor: "rgba(210,178,107,.06)" }} animation="wave" />
-        <Skeleton variant="text" width="35%" height={28} sx={{ bgcolor: "rgba(210,178,107,.08)", mt: 0.5 }} animation="wave" />
+        <Skeleton
+          variant="text"
+          width="65%"
+          height={22}
+          sx={{ bgcolor: "rgba(210,178,107,.08)" }}
+          animation="wave"
+        />
+        <Skeleton
+          variant="text"
+          width="90%"
+          sx={{ bgcolor: "rgba(210,178,107,.06)" }}
+          animation="wave"
+        />
+        <Skeleton
+          variant="text"
+          width="45%"
+          sx={{ bgcolor: "rgba(210,178,107,.06)" }}
+          animation="wave"
+        />
+        <Skeleton
+          variant="text"
+          width="35%"
+          height={28}
+          sx={{ bgcolor: "rgba(210,178,107,.08)", mt: 0.5 }}
+          animation="wave"
+        />
       </Box>
-      <Skeleton variant="rectangular" height={160} sx={{ bgcolor: "rgba(210,178,107,.05)", mx: 2, mb: 2, borderRadius: 2 }} animation="wave" />
+      <Skeleton
+        variant="rectangular"
+        height={160}
+        sx={{ bgcolor: "rgba(210,178,107,.05)", mx: 2, mb: 2, borderRadius: 2 }}
+        animation="wave"
+      />
       <Stack direction="row" gap={1} px={2} pb={2}>
-        <Skeleton variant="rectangular" height={34} sx={{ flex: 1, borderRadius: 2, bgcolor: "rgba(210,178,107,.06)" }} animation="wave" />
-        <Skeleton variant="rectangular" height={34} sx={{ flex: 1, borderRadius: 2, bgcolor: "rgba(210,178,107,.06)" }} animation="wave" />
+        <Skeleton
+          variant="rectangular"
+          height={34}
+          sx={{ flex: 1, borderRadius: 2, bgcolor: "rgba(210,178,107,.06)" }}
+          animation="wave"
+        />
+        <Skeleton
+          variant="rectangular"
+          height={34}
+          sx={{ flex: 1, borderRadius: 2, bgcolor: "rgba(210,178,107,.06)" }}
+          animation="wave"
+        />
       </Stack>
     </Box>
   );

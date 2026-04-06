@@ -33,7 +33,8 @@ import { ProductCard } from "../components/Products";
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const { products, fetchProducts, randomProducts, fetchRandomProducts } = useProducts();
+  const { products, fetchProducts, randomProducts, fetchRandomProducts } =
+    useProducts();
   const { addToCart, getItemQuantity, updateQuantity } = useCart();
   const { t, i18n } = useTranslation();
   const [activeImage, setActiveImage] = useState(0);
@@ -61,14 +62,26 @@ export default function ProductDetails() {
     }
   }, [products, id, getItemQuantity]);
 
-  const similarProducts = randomProducts?.filter((p) => p._id !== id).slice(0, 4);
+  const similarProducts = randomProducts
+    ?.filter((p) => p._id !== id)
+    .slice(0, 4);
 
   if (!product) return null;
 
   const {
-    name, description, categoryName, badge, imageUrls,
-    quantity: availableQuantity, unit, price, discountPrice,
-    productType, keyBenefits = [], howToUse, ingredients,
+    name,
+    description,
+    categoryName,
+    badge,
+    imageUrls,
+    quantity: availableQuantity,
+    unit,
+    price,
+    discountPrice,
+    productType,
+    keyBenefits = [],
+    howToUse,
+    ingredients,
   } = product;
 
   const isB2B = productType === "b2b";
@@ -86,24 +99,36 @@ export default function ProductDetails() {
   const formatPrice = (value) => {
     if (!value && value !== 0) return null;
     return new Intl.NumberFormat(i18n.language === "fr" ? "fr-DZ" : "en-DZ", {
-      style: "currency", currency: "DZD",
-      minimumFractionDigits: 0, maximumFractionDigits: 0,
+      style: "currency",
+      currency: "DZD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(value);
   };
 
   const getUnitLabel = (unitValue) => {
     const units = {
-      kg: "kg", g: "g", lb: "lb", oz: "oz",
-      piece: t("products.piece"), dozen: t("products.dozen"),
-      liter: "L", ml: "ml", gallon: t("products.gallon"),
-      box: t("products.box"), pack: t("products.pack"),
+      kg: "kg",
+      g: "g",
+      lb: "lb",
+      oz: "oz",
+      piece: t("products.piece"),
+      dozen: t("products.dozen"),
+      liter: "L",
+      ml: "ml",
+      gallon: t("products.gallon"),
+      box: t("products.box"),
+      pack: t("products.pack"),
     };
     return units[unitValue] || unitValue;
   };
 
-  const hasDiscount = isRegular && discountPrice && discountPrice > 0 && discountPrice < price;
+  const hasDiscount =
+    isRegular && discountPrice && discountPrice > 0 && discountPrice < price;
   const formattedPrice = isRegular ? formatPrice(price) : null;
-  const formattedDiscountPrice = hasDiscount ? formatPrice(discountPrice) : null;
+  const formattedDiscountPrice = hasDiscount
+    ? formatPrice(discountPrice)
+    : null;
   const currentCartQuantity = getItemQuantity(product._id);
   const isInCart = currentCartQuantity > 0;
 
@@ -115,9 +140,11 @@ export default function ProductDetails() {
         t("products.addedToCart", {
           name: name[i18n.language],
           quantity: selectedQuantity,
-          price: isRegular ? formatPrice(effectivePrice * selectedQuantity) : "",
+          price: isRegular
+            ? formatPrice(effectivePrice * selectedQuantity)
+            : "",
         }),
-        "success"
+        "success",
       );
     }
   };
@@ -125,7 +152,10 @@ export default function ProductDetails() {
   const handleUpdateCart = () => {
     if (currentCartQuantity > 0) {
       updateQuantity(product._id, selectedQuantity);
-      showSnackbar(t("products.cartUpdated", { quantity: selectedQuantity }), "info");
+      showSnackbar(
+        t("products.cartUpdated", { quantity: selectedQuantity }),
+        "info",
+      );
     } else {
       handleAddToCart();
     }
@@ -133,9 +163,27 @@ export default function ProductDetails() {
 
   const handleAddToCartAndCheckout = (product, type) => {
     addToCart(product, selectedQuantity || 1);
-    showSnackbar(t("products.addedToCart", { name: product.name[i18n.language] }), "success");
+    showSnackbar(
+      t("products.addedToCart", { name: product.name[i18n.language] }),
+      "success",
+    );
     navigate("/checkout", {
-      state: { requestType: type, requestOrigin: productType === "b2b" ? "company" : "client" },
+      state: {
+        requestType: type,
+        requestOrigin: productType === "b2b" ? "company" : "client",
+      },
+    });
+  };
+
+  const handleRequestOnly = (product, type) => {
+    // Navigate to checkout with product data WITHOUT adding to cart
+    navigate(`/checkout/product/${product._id}`, {
+      state: {
+        requestType: type,
+        requestOrigin: productType === "b2b" ? "company" : "client",
+        singleProduct: product, // Pass the product data
+        quantity: id === product._id ? selectedQuantity : 1, // Default quantity
+      },
     });
   };
 
@@ -154,8 +202,14 @@ export default function ProductDetails() {
       <Box component="section" sx={{ py: { xs: 4, sm: 6, md: 7 } }}>
         <Container maxWidth="lg">
           {/* Back nav */}
-          <Stack direction="row" alignItems="center" gap={1.5} mb={4}
-            className="animate-fade-in-up" sx={{ opacity: 0 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={1.5}
+            mb={4}
+            className="animate-fade-in-up"
+            sx={{ opacity: 0 }}
+          >
             <IconButton
               onClick={() => navigate(-1)}
               size="small"
@@ -164,7 +218,11 @@ export default function ProductDetails() {
                 border: "1px solid rgba(210,178,107,.18)",
                 borderRadius: "10px",
                 transition: "all 0.2s ease",
-                "&:hover": { color: "#d2b26b", borderColor: "rgba(210,178,107,.4)", transform: "translateX(-2px)" },
+                "&:hover": {
+                  color: "#d2b26b",
+                  borderColor: "rgba(210,178,107,.4)",
+                  transform: "translateX(-2px)",
+                },
               }}
             >
               <ArrowBackIcon sx={{ fontSize: 18 }} />
@@ -174,28 +232,59 @@ export default function ProductDetails() {
             <Stack direction="row" alignItems="center" gap={0.75}>
               <Typography
                 onClick={() => navigate("/")}
-                sx={{ fontSize: 13, color: "rgba(233,242,241,.45)", cursor: "pointer", "&:hover": { color: "rgba(233,242,241,.8)" }, transition: ".2s" }}
+                sx={{
+                  fontSize: 13,
+                  color: "rgba(233,242,241,.45)",
+                  cursor: "pointer",
+                  "&:hover": { color: "rgba(233,242,241,.8)" },
+                  transition: ".2s",
+                }}
               >
                 {t("header.home") || "Home"}
               </Typography>
-              <Typography sx={{ fontSize: 13, color: "rgba(233,242,241,.3)" }}>›</Typography>
+              <Typography sx={{ fontSize: 13, color: "rgba(233,242,241,.3)" }}>
+                ›
+              </Typography>
               {isB2B ? (
                 <Typography
                   onClick={() => navigate("/b2b")}
-                  sx={{ fontSize: 13, color: "rgba(233,242,241,.45)", cursor: "pointer", "&:hover": { color: "rgba(233,242,241,.8)" }, transition: ".2s" }}
+                  sx={{
+                    fontSize: 13,
+                    color: "rgba(233,242,241,.45)",
+                    cursor: "pointer",
+                    "&:hover": { color: "rgba(233,242,241,.8)" },
+                    transition: ".2s",
+                  }}
                 >
                   B2B
                 </Typography>
               ) : (
                 <Typography
                   onClick={() => navigate("/store")}
-                  sx={{ fontSize: 13, color: "rgba(233,242,241,.45)", cursor: "pointer", "&:hover": { color: "rgba(233,242,241,.8)" }, transition: ".2s" }}
+                  sx={{
+                    fontSize: 13,
+                    color: "rgba(233,242,241,.45)",
+                    cursor: "pointer",
+                    "&:hover": { color: "rgba(233,242,241,.8)" },
+                    transition: ".2s",
+                  }}
                 >
                   {t("header.store") || "Store"}
                 </Typography>
               )}
-              <Typography sx={{ fontSize: 13, color: "rgba(233,242,241,.3)" }}>›</Typography>
-              <Typography sx={{ fontSize: 13, color: "rgba(210,178,107,.85)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 200 }}>
+              <Typography sx={{ fontSize: 13, color: "rgba(233,242,241,.3)" }}>
+                ›
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  color: "rgba(210,178,107,.85)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: 200,
+                }}
+              >
                 {name[i18n.language]}
               </Typography>
             </Stack>
@@ -209,7 +298,8 @@ export default function ProductDetails() {
                 sx={{
                   borderRadius: 4,
                   border: "1px solid rgba(210,178,107,.14)",
-                  background: "linear-gradient(180deg, rgba(15,46,51,.92), rgba(10,30,34,.92))",
+                  background:
+                    "linear-gradient(180deg, rgba(15,46,51,.92), rgba(10,30,34,.92))",
                   p: { xs: 2.5, sm: 3 },
                   boxShadow: "0 20px 50px rgba(0,0,0,.35)",
                   opacity: 0,
@@ -243,7 +333,14 @@ export default function ProductDetails() {
 
                 {/* Thumbnails */}
                 {imageUrls?.length > 1 && (
-                  <Stack direction="row" spacing={1} mt={2.5} justifyContent="center" flexWrap="wrap" gap={1}>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    mt={2.5}
+                    justifyContent="center"
+                    flexWrap="wrap"
+                    gap={1}
+                  >
                     {imageUrls.map((img, index) => (
                       <Box
                         key={index}
@@ -257,12 +354,17 @@ export default function ProductDetails() {
                           objectFit: "contain",
                           borderRadius: 2,
                           cursor: "pointer",
-                          border: activeImage === index
-                            ? "1.5px solid rgba(210,178,107,.7)"
-                            : "1.5px solid rgba(210,178,107,.14)",
+                          border:
+                            activeImage === index
+                              ? "1.5px solid rgba(210,178,107,.7)"
+                              : "1.5px solid rgba(210,178,107,.14)",
                           opacity: activeImage === index ? 1 : 0.55,
                           transition: "all 0.2s ease",
-                          "&:hover": { opacity: 1, borderColor: "rgba(210,178,107,.45)", transform: "scale(1.04)" },
+                          "&:hover": {
+                            opacity: 1,
+                            borderColor: "rgba(210,178,107,.45)",
+                            transform: "scale(1.04)",
+                          },
                         }}
                       />
                     ))}
@@ -280,18 +382,39 @@ export default function ProductDetails() {
               >
                 {/* Header */}
                 <Box>
-                  <Stack direction="row" alignItems="center" gap={1} mb={1} flexWrap="wrap">
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    gap={1}
+                    mb={1}
+                    flexWrap="wrap"
+                  >
                     {categoryName?.[i18n.language] && (
-                      <Typography sx={{ fontSize: 11, color: "rgba(210,178,107,.85)", fontWeight: 500, letterSpacing: "0.08em" }}>
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "rgba(210,178,107,.85)",
+                          fontWeight: 500,
+                          letterSpacing: "0.08em",
+                        }}
+                      >
                         #{categoryName[i18n.language]}
                       </Typography>
                     )}
                     {badge?.[i18n.language] && (
-                      <Box sx={{
-                        fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase",
-                        border: "1px solid rgba(210,178,107,.2)", background: "rgba(210,178,107,.07)",
-                        color: "rgba(210,178,107,.9)", px: 1.2, py: 0.4, borderRadius: "999px",
-                      }}>
+                      <Box
+                        sx={{
+                          fontSize: 10,
+                          letterSpacing: "0.1em",
+                          textTransform: "uppercase",
+                          border: "1px solid rgba(210,178,107,.2)",
+                          background: "rgba(210,178,107,.07)",
+                          color: "rgba(210,178,107,.9)",
+                          px: 1.2,
+                          py: 0.4,
+                          borderRadius: "999px",
+                        }}
+                      >
                         {badge[i18n.language]}
                       </Box>
                     )}
@@ -313,7 +436,8 @@ export default function ProductDetails() {
                   <Typography
                     component="h1"
                     sx={{
-                      fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, "Times New Roman", serif)',
+                      fontFamily:
+                        'var(--font-serif, "Literata", ui-serif, Georgia, "Times New Roman", serif)',
                       fontSize: { xs: 24, sm: 28, md: 34 },
                       letterSpacing: "0.02em",
                       color: "rgba(233,242,241,.95)",
@@ -328,34 +452,63 @@ export default function ProductDetails() {
                 {/* Price */}
                 {isRegular && price && (
                   <Box>
-                    <Stack direction="row" alignItems="baseline" spacing={1.5} flexWrap="wrap" gap={1}>
+                    <Stack
+                      direction="row"
+                      alignItems="baseline"
+                      spacing={1.5}
+                      flexWrap="wrap"
+                      gap={1}
+                    >
                       {hasDiscount ? (
                         <>
-                          <Typography sx={{
-                            fontSize: { xs: 30, md: 36 }, fontWeight: 700, color: "#d2b26b",
-                            fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
-                          }}>
+                          <Typography
+                            sx={{
+                              fontSize: { xs: 30, md: 36 },
+                              fontWeight: 700,
+                              color: "#d2b26b",
+                              fontFamily:
+                                'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+                            }}
+                          >
                             {formattedDiscountPrice}
                           </Typography>
-                          <Typography sx={{ fontSize: { xs: 16, md: 18 }, color: "rgba(233,242,241,.4)", textDecoration: "line-through" }}>
+                          <Typography
+                            sx={{
+                              fontSize: { xs: 16, md: 18 },
+                              color: "rgba(233,242,241,.4)",
+                              textDecoration: "line-through",
+                            }}
+                          >
                             {formattedPrice}
                           </Typography>
                           <Chip
                             label={t("products.onSale") || "Sale"}
                             size="small"
-                            sx={{ backgroundColor: "rgba(76,175,80,.15)", color: "#4caf50", fontSize: 10, height: 20 }}
+                            sx={{
+                              backgroundColor: "rgba(76,175,80,.15)",
+                              color: "#4caf50",
+                              fontSize: 10,
+                              height: 20,
+                            }}
                           />
                         </>
                       ) : (
-                        <Typography sx={{
-                          fontSize: { xs: 30, md: 36 }, fontWeight: 700, color: "#d2b26b",
-                          fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
-                        }}>
+                        <Typography
+                          sx={{
+                            fontSize: { xs: 30, md: 36 },
+                            fontWeight: 700,
+                            color: "#d2b26b",
+                            fontFamily:
+                              'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+                          }}
+                        >
                           {formattedPrice}
                         </Typography>
                       )}
                       {unit && (
-                        <Typography sx={{ fontSize: 15, color: "rgba(233,242,241,.55)" }}>
+                        <Typography
+                          sx={{ fontSize: 15, color: "rgba(233,242,241,.55)" }}
+                        >
                           / {getUnitLabel(unit)}
                         </Typography>
                       )}
@@ -378,17 +531,33 @@ export default function ProductDetails() {
                       border: "1px solid rgba(210,178,107,.12)",
                     }}
                   >
-                    <Typography sx={{ fontSize: 22, fontWeight: 600, color: "rgba(210,178,107,.95)", lineHeight: 1 }}>
+                    <Typography
+                      sx={{
+                        fontSize: 22,
+                        fontWeight: 600,
+                        color: "rgba(210,178,107,.95)",
+                        lineHeight: 1,
+                      }}
+                    >
                       {availableQuantity}
                     </Typography>
-                    <Typography sx={{ fontSize: 13, color: "rgba(210,178,107,.75)" }}>
+                    <Typography
+                      sx={{ fontSize: 13, color: "rgba(210,178,107,.75)" }}
+                    >
                       {getUnitLabel(unit)} {t("products.available")}
                     </Typography>
                   </Box>
                 )}
 
                 {/* Description */}
-                <Typography sx={{ fontSize: 14, lineHeight: 1.75, color: "rgba(233,242,241,.72)", wordBreak: "break-word" }}>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    lineHeight: 1.75,
+                    color: "rgba(233,242,241,.72)",
+                    wordBreak: "break-word",
+                  }}
+                >
                   {description[i18n.language]}
                 </Typography>
 
@@ -402,15 +571,38 @@ export default function ProductDetails() {
                       border: "1px solid rgba(210,178,107,.1)",
                     }}
                   >
-                    <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#d2b26b", mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "#d2b26b",
+                        mb: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
                       <EmojiEventsIcon sx={{ fontSize: 18 }} />
                       {t("products.keyBenefits") || "Key Benefits"}
                     </Typography>
                     <Stack spacing={1.5}>
                       {keyBenefits.map((benefit, index) => (
-                        <Stack key={index} direction="row" alignItems="flex-start" gap={1.5}>
-                          <Box sx={{ flexShrink: 0, mt: 0.25 }}>{getBenefitIcon(index)}</Box>
-                          <Typography sx={{ fontSize: 13, color: "rgba(233,242,241,.78)", lineHeight: 1.55 }}>
+                        <Stack
+                          key={index}
+                          direction="row"
+                          alignItems="flex-start"
+                          gap={1.5}
+                        >
+                          <Box sx={{ flexShrink: 0, mt: 0.25 }}>
+                            {getBenefitIcon(index)}
+                          </Box>
+                          <Typography
+                            sx={{
+                              fontSize: 13,
+                              color: "rgba(233,242,241,.78)",
+                              lineHeight: 1.55,
+                            }}
+                          >
                             {benefit?.[i18n.language] || benefit?.en || ""}
                           </Typography>
                         </Stack>
@@ -422,36 +614,72 @@ export default function ProductDetails() {
                 {/* Quantity + Add to Cart */}
                 {isRegular && availableQuantity > 0 && (
                   <Stack spacing={2}>
-                    <Stack direction={{ xs: "column", sm: "row" }} alignItems={{ xs: "flex-start", sm: "center" }} spacing={2} flexWrap="wrap">
-                      <Typography sx={{ fontSize: 14, color: "rgba(233,242,241,.75)" }}>
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      alignItems={{ xs: "flex-start", sm: "center" }}
+                      spacing={2}
+                      flexWrap="wrap"
+                    >
+                      <Typography
+                        sx={{ fontSize: 14, color: "rgba(233,242,241,.75)" }}
+                      >
                         {t("products.quantity")}:
                       </Typography>
-                      <Box sx={{
-                        display: "flex", alignItems: "center", gap: 0.5,
-                        background: "rgba(255,255,255,.04)", borderRadius: 2,
-                        border: "1px solid rgba(210,178,107,.18)",
-                      }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                          background: "rgba(255,255,255,.04)",
+                          borderRadius: 2,
+                          border: "1px solid rgba(210,178,107,.18)",
+                        }}
+                      >
                         <IconButton
                           onClick={handleDecreaseQuantity}
                           disabled={selectedQuantity <= 1}
                           size="small"
-                          sx={{ color: "rgba(210,178,107,.8)", p: 0.75, "&:hover": { background: "rgba(210,178,107,.1)" }, "&.Mui-disabled": { color: "rgba(210,178,107,.25)" } }}
+                          sx={{
+                            color: "rgba(210,178,107,.8)",
+                            p: 0.75,
+                            "&:hover": { background: "rgba(210,178,107,.1)" },
+                            "&.Mui-disabled": {
+                              color: "rgba(210,178,107,.25)",
+                            },
+                          }}
                         >
                           <RemoveIcon sx={{ fontSize: 16 }} />
                         </IconButton>
-                        <Typography sx={{ fontSize: 17, fontWeight: 500, color: "rgba(233,242,241,.9)", minWidth: 36, textAlign: "center" }}>
+                        <Typography
+                          sx={{
+                            fontSize: 17,
+                            fontWeight: 500,
+                            color: "rgba(233,242,241,.9)",
+                            minWidth: 36,
+                            textAlign: "center",
+                          }}
+                        >
                           {selectedQuantity}
                         </Typography>
                         <IconButton
                           onClick={handleIncreaseQuantity}
                           disabled={selectedQuantity >= availableQuantity}
                           size="small"
-                          sx={{ color: "rgba(210,178,107,.8)", p: 0.75, "&:hover": { background: "rgba(210,178,107,.1)" }, "&.Mui-disabled": { color: "rgba(210,178,107,.25)" } }}
+                          sx={{
+                            color: "rgba(210,178,107,.8)",
+                            p: 0.75,
+                            "&:hover": { background: "rgba(210,178,107,.1)" },
+                            "&.Mui-disabled": {
+                              color: "rgba(210,178,107,.25)",
+                            },
+                          }}
                         >
                           <AddIcon sx={{ fontSize: 16 }} />
                         </IconButton>
                       </Box>
-                      <Typography sx={{ fontSize: 13, color: "rgba(233,242,241,.5)" }}>
+                      <Typography
+                        sx={{ fontSize: 13, color: "rgba(233,242,241,.5)" }}
+                      >
                         {getUnitLabel(unit)}
                       </Typography>
                     </Stack>
@@ -473,19 +701,33 @@ export default function ProductDetails() {
                         transition: "all 0.22s ease",
                         boxShadow: "0 4px 18px rgba(210,178,107,.2)",
                         "&:hover": {
-                          background: "linear-gradient(135deg, #dbc07a, #c49948)",
+                          background:
+                            "linear-gradient(135deg, #dbc07a, #c49948)",
                           transform: "translateY(-2px)",
                           boxShadow: "0 8px 28px rgba(210,178,107,.3)",
                         },
-                        "&.Mui-disabled": { background: "rgba(210,178,107,.25)", color: "rgba(10,30,34,.5)" },
+                        "&.Mui-disabled": {
+                          background: "rgba(210,178,107,.25)",
+                          color: "rgba(10,30,34,.5)",
+                        },
                       }}
                     >
-                      {isInCart ? t("products.updateCart") || "Update Cart" : t("products.addToCart") || "Add to Cart"}
+                      {isInCart
+                        ? t("products.updateCart") || "Update Cart"
+                        : t("products.addToCart") || "Add to Cart"}
                     </Button>
 
                     {isInCart && (
-                      <Typography sx={{ fontSize: 12, color: "rgba(210,178,107,.6)", fontStyle: "italic" }}>
-                        {t("products.currentlyInCart", { quantity: currentCartQuantity }) ||
+                      <Typography
+                        sx={{
+                          fontSize: 12,
+                          color: "rgba(210,178,107,.6)",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {t("products.currentlyInCart", {
+                          quantity: currentCartQuantity,
+                        }) ||
                           `${currentCartQuantity} ${getUnitLabel(unit)} in cart`}
                       </Typography>
                     )}
@@ -493,47 +735,105 @@ export default function ProductDetails() {
                 )}
 
                 {isRegular && availableQuantity === 0 && (
-                  <Typography sx={{ fontSize: 14, color: "rgba(210,178,107,.6)", fontStyle: "italic" }}>
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      color: "rgba(210,178,107,.6)",
+                      fontStyle: "italic",
+                    }}
+                  >
                     {t("products.outOfStock")}
                   </Typography>
                 )}
 
                 {/* Accordion sections */}
-                {(howToUse?.[i18n.language] || ingredients?.[i18n.language]) && (
+                {(howToUse?.[i18n.language] ||
+                  ingredients?.[i18n.language]) && (
                   <Box sx={{ mt: 0.5 }}>
                     {howToUse?.[i18n.language] && (
-                      <Accordion sx={{
-                        backgroundColor: "transparent", boxShadow: "none",
-                        border: "1px solid rgba(210,178,107,.1)", borderRadius: "12px !important",
-                        mb: 1.5, "&:before": { display: "none" },
-                        "&.Mui-expanded": { border: "1px solid rgba(210,178,107,.2)" },
-                      }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "#d2b26b", fontSize: 20 }} />} sx={{ px: 2.5 }}>
-                          <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#d2b26b" }}>
+                      <Accordion
+                        sx={{
+                          backgroundColor: "transparent",
+                          boxShadow: "none",
+                          border: "1px solid rgba(210,178,107,.1)",
+                          borderRadius: "12px !important",
+                          mb: 1.5,
+                          "&:before": { display: "none" },
+                          "&.Mui-expanded": {
+                            border: "1px solid rgba(210,178,107,.2)",
+                          },
+                        }}
+                      >
+                        <AccordionSummary
+                          expandIcon={
+                            <ExpandMoreIcon
+                              sx={{ color: "#d2b26b", fontSize: 20 }}
+                            />
+                          }
+                          sx={{ px: 2.5 }}
+                        >
+                          <Typography
+                            sx={{
+                              fontSize: 14,
+                              fontWeight: 600,
+                              color: "#d2b26b",
+                            }}
+                          >
                             {t("products.howToUse") || "How to Use"}
                           </Typography>
                         </AccordionSummary>
                         <AccordionDetails sx={{ px: 2.5, pt: 0, pb: 2 }}>
-                          <Typography sx={{ fontSize: 13, color: "rgba(233,242,241,.75)", lineHeight: 1.7 }}>
+                          <Typography
+                            sx={{
+                              fontSize: 13,
+                              color: "rgba(233,242,241,.75)",
+                              lineHeight: 1.7,
+                            }}
+                          >
                             {howToUse[i18n.language]}
                           </Typography>
                         </AccordionDetails>
                       </Accordion>
                     )}
                     {ingredients?.[i18n.language] && (
-                      <Accordion sx={{
-                        backgroundColor: "transparent", boxShadow: "none",
-                        border: "1px solid rgba(210,178,107,.1)", borderRadius: "12px !important",
-                        "&:before": { display: "none" },
-                        "&.Mui-expanded": { border: "1px solid rgba(210,178,107,.2)" },
-                      }}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "#d2b26b", fontSize: 20 }} />} sx={{ px: 2.5 }}>
-                          <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#d2b26b" }}>
+                      <Accordion
+                        sx={{
+                          backgroundColor: "transparent",
+                          boxShadow: "none",
+                          border: "1px solid rgba(210,178,107,.1)",
+                          borderRadius: "12px !important",
+                          "&:before": { display: "none" },
+                          "&.Mui-expanded": {
+                            border: "1px solid rgba(210,178,107,.2)",
+                          },
+                        }}
+                      >
+                        <AccordionSummary
+                          expandIcon={
+                            <ExpandMoreIcon
+                              sx={{ color: "#d2b26b", fontSize: 20 }}
+                            />
+                          }
+                          sx={{ px: 2.5 }}
+                        >
+                          <Typography
+                            sx={{
+                              fontSize: 14,
+                              fontWeight: 600,
+                              color: "#d2b26b",
+                            }}
+                          >
                             {t("products.ingredients") || "Ingredients"}
                           </Typography>
                         </AccordionSummary>
                         <AccordionDetails sx={{ px: 2.5, pt: 0, pb: 2 }}>
-                          <Typography sx={{ fontSize: 13, color: "rgba(233,242,241,.75)", lineHeight: 1.7 }}>
+                          <Typography
+                            sx={{
+                              fontSize: 13,
+                              color: "rgba(233,242,241,.75)",
+                              lineHeight: 1.7,
+                            }}
+                          >
                             {ingredients[i18n.language]}
                           </Typography>
                         </AccordionDetails>
@@ -546,10 +846,14 @@ export default function ProductDetails() {
 
                 {/* Request CTAs */}
                 <Stack direction={{ xs: "column", sm: "row" }} gap={1.5}>
-                  <DetailActionButton onClick={() => handleAddToCartAndCheckout(product, "tds")}>
+                  <DetailActionButton
+                    onClick={() => handleRequestOnly(product, "tds")}
+                  >
                     {t("products.tds")}
                   </DetailActionButton>
-                  <DetailActionButton onClick={() => handleAddToCartAndCheckout(product, "samples")}>
+                  <DetailActionButton
+                    onClick={() => handleRequestOnly(product, "samples")}
+                  >
                     {t("products.samples")}
                   </DetailActionButton>
                 </Stack>
@@ -573,7 +877,8 @@ export default function ProductDetails() {
             <Typography
               className="animate-fade-in-up"
               sx={{
-                fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+                fontFamily:
+                  'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
                 fontSize: { xs: 22, sm: 26, md: 30 },
                 letterSpacing: "0.03em",
                 color: "#d2b26b",
@@ -596,8 +901,8 @@ export default function ProductDetails() {
                   <ProductCard
                     {...p}
                     onClick={() => navigate(`/products/${p._id}`)}
-                    onRequestSamples={() => handleAddToCartAndCheckout(p, "samples")}
-                    onRequestTds={() => handleAddToCartAndCheckout(p, "tds")}
+                    onRequestSamples={() => handleRequestOnly(p, "samples")}
+                    onRequestTds={() => handleRequestOnly(p, "tds")}
                   />
                 </Grid>
               ))}

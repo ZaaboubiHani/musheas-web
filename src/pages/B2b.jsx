@@ -63,6 +63,19 @@ export default function B2b() {
     navigate("/checkout", { state: { requestType: type, requestOrigin: "company" } });
   };
 
+  const handleRequestOnly = (product, type) => {
+    // Navigate to checkout with product data WITHOUT adding to cart
+    navigate(`/checkout/product/${product._id}`, {
+      state: {
+        requestType: type,
+        requestOrigin: "company",
+        singleProduct: product, // Pass the product data
+        quantity: 1, // Default quantity
+      },
+    });
+  };
+
+
   const sortedProducts = [...products].sort((a, b) => {
     switch (sortBy) {
       case "price-low": return (a.price || 0) - (b.price || 0);
@@ -203,8 +216,8 @@ export default function B2b() {
                   <ProductCard
                     {...product}
                     onClick={() => navigate(`/products/${product._id}`)}
-                    onRequestSamples={() => handleAddToCartAndCheckout(product, "samples")}
-                    onRequestTds={() => handleAddToCartAndCheckout(product, "tds")}
+                    onRequestSamples={() => handleRequestOnly(product, "samples")}
+                    onRequestTds={() => handleRequestOnly(product, "tds")}
                   />
                 </Grid>
               ))}
