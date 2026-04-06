@@ -8,7 +8,7 @@
     "contact": "Contact",
     "home": "Home",
     "store": "Store",
-    "b2b": "B2B"
+    "b2b": "R&D center"
   },
   "hero": {
     "tagline": "Mycology in Biotechnology",
@@ -30,7 +30,8 @@
       ["Stability", "Preservation strategy & batch consistency."],
       ["Sampling", "30 ml samples for labs & manufacturers."],
       ["Custom", "Custom ratios, concentration & branding."]
-    ]
+    ],
+    "algerianMade": "Made in Algeria"
   },
   "products": {
     "title": "Our Products",
@@ -196,12 +197,18 @@
     "copy": "Copy Email",
     "formNote": "This demo form does not send emails. Hook it to your backend later (Supabase, Formspree, or your API).",
 
+      "companyValue": "MUSHEAS Company",
+      "nameValue": "Nabil Yahia",
+      "roleValue": "R&D and Business Development Manager - Meeting Representative",
+      "phoneValue": "0674861146",
+      "emailValue": "musheas.lab@gmail.com",
     "labels": {
       "company": "Company",
       "name": "Name",
       "role": "Role",
       "phone": "Phone",
-      "email": "Email"
+      "email": "Email",
+      "message": "Message"
     }
   },
   "footer": {

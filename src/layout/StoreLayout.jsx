@@ -16,8 +16,8 @@ export default function StoreLayout() {
   return (
     <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
       <Header />
-
-      <Outlet />
+     
+        <Outlet />
       <Contact />
       <Footer />
     </Box>

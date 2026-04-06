@@ -1,10 +1,10 @@
 /* ============================================================
-   MUSHEAS DESIGN SYSTEM — CSS Variables
-   Extracted from Main Website (main-website.zip)
+   MUSHEAS DESIGN SYSTEM — CSS Variables + Animations
    ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Literata:wght@700&display=swap');
+
 :root {
-  /* Colors */
   --color-bg-default: #0c1f22;
   --color-bg-paper: #0f2a2e;
   --color-bg-deep: #081618;
@@ -17,44 +17,25 @@
   --color-text-primary: #e9f2f1;
   --color-text-secondary: #b8c9c6;
   --color-text-muted: rgba(233, 242, 241, 0.62);
-
-  /* Gradients */
   --gradient-appbar: linear-gradient(180deg, rgba(8,22,24,0.82), rgba(8,22,24,0.55));
   --gradient-paper: linear-gradient(180deg, rgba(15,42,46,0.85), rgba(11,36,40,0.92));
   --gradient-gold: linear-gradient(135deg, rgba(210,178,107,0.92), rgba(184,144,63,0.92));
   --gradient-footer: linear-gradient(180deg, rgba(8,22,24,0.25), rgba(8,22,24,0.55));
-
-  /* Borders */
   --border-gold-subtle: 1px solid rgba(210, 178, 107, 0.12);
   --border-gold-medium: 1px solid rgba(210, 178, 107, 0.28);
   --border-radius-sm: 8px;
   --border-radius-md: 12px;
   --border-radius-lg: 18px;
-
-  /* Shadows */
   --shadow-card: 0 20px 55px rgba(0, 0, 0, 0.45);
   --shadow-gold-glow: 0 16px 40px rgba(210, 178, 107, 0.18);
-
-  /* Typography */
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
+  --font-serif: "Literata", ui-serif, Georgia, "Times New Roman", serif;
   --letter-spacing-wide: 0.04em;
   --letter-spacing-wider: 0.08em;
   --letter-spacing-widest: 0.18em;
-
-  /* Spacing */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 48px;
 }
 
-/* Base Reset */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 html, body {
   margin: 0;
@@ -69,17 +50,61 @@ html, body {
 #root {
   min-height: 100vh;
   background-color: var(--color-bg-default);
+  position: relative;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--color-bg-default); }
-::-webkit-scrollbar-thumb { background: rgba(210,178,107,0.25); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(210,178,107,0.45); }
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  opacity: 0.45;
+}
 
-/* ============================================================
-   SweetAlert2 — Musheas Dark Theme Override
-   ============================================================ */
+/* ============================================================ ANIMATIONS */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* Hero gradient bg */
+.hero-media-bg {
+  background-image:
+    radial-gradient(900px 600px at 35% 35%, rgba(210,178,107,.22), transparent 55%),
+    radial-gradient(800px 500px at 75% 30%, rgba(85,170,180,.18), transparent 60%),
+    linear-gradient(120deg, rgba(6,18,20,.5), rgba(6,18,20,.85));
+  background-size: cover;
+  background-position: center;
+  filter: saturate(.95) contrast(1.05);
+}
+
+/* ============================================================ SCROLLBAR */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--color-bg-default); }
+::-webkit-scrollbar-thumb { background: rgba(210,178,107,0.22); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(210,178,107,0.42); }
+
+/* ============================================================ SWEETALERT2 */
 .swal2-popup {
   background: #0f2a2e !important;
   color: #e9f2f1 !important;
@@ -87,35 +112,17 @@ html, body {
   border-radius: 14px !important;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6) !important;
 }
-
 .swal2-title {
   color: #d2b26b !important;
-  font-family: ui-serif, Georgia, "Times New Roman", serif !important;
+  font-family: var(--font-serif) !important;
   font-weight: 700 !important;
   letter-spacing: 0.03em !important;
 }
-
-.swal2-html-container {
-  color: #b8c9c6 !important;
-}
-
-.swal2-icon.swal2-warning {
-  border-color: #d2b26b !important;
-  color: #d2b26b !important;
-}
-
-.swal2-icon.swal2-success {
-  border-color: rgba(210, 178, 107, 0.5) !important;
-}
-
-.swal2-icon.swal2-success [class^="swal2-success-line"] {
-  background-color: #d2b26b !important;
-}
-
-.swal2-icon.swal2-success .swal2-success-ring {
-  border-color: rgba(210, 178, 107, 0.3) !important;
-}
-
+.swal2-html-container { color: #b8c9c6 !important; }
+.swal2-icon.swal2-warning { border-color: #d2b26b !important; color: #d2b26b !important; }
+.swal2-icon.swal2-success { border-color: rgba(210, 178, 107, 0.5) !important; }
+.swal2-icon.swal2-success [class^="swal2-success-line"] { background-color: #d2b26b !important; }
+.swal2-icon.swal2-success .swal2-success-ring { border-color: rgba(210, 178, 107, 0.3) !important; }
 .swal2-confirm {
   background: linear-gradient(135deg, rgba(210,178,107,0.92), rgba(184,144,63,0.92)) !important;
   color: #102125 !important;
@@ -125,12 +132,10 @@ html, body {
   border: none !important;
   box-shadow: 0 8px 24px rgba(210, 178, 107, 0.2) !important;
 }
-
 .swal2-confirm:hover {
   background: linear-gradient(135deg, #d2b26b, #b8903f) !important;
   box-shadow: 0 12px 32px rgba(210, 178, 107, 0.3) !important;
 }
-
 .swal2-cancel {
   background: rgba(210, 178, 107, 0.10) !important;
   color: #e9f2f1 !important;
@@ -138,30 +143,15 @@ html, body {
   font-weight: 500 !important;
   border-radius: 8px !important;
 }
+.swal2-cancel:hover { background: rgba(210, 178, 107, 0.16) !important; border-color: rgba(210, 178, 107, 0.35) !important; }
+.swal2-close { color: #b8c9c6 !important; }
+.swal2-close:hover { color: #d2b26b !important; }
 
-.swal2-cancel:hover {
-  background: rgba(210, 178, 107, 0.16) !important;
-  border-color: rgba(210, 178, 107, 0.35) !important;
-}
-
-.swal2-close {
-  color: #b8c9c6 !important;
-}
-
-.swal2-close:hover {
-  color: #d2b26b !important;
-}
-
-/* ============================================================
-   MUI Overrides (additional global polish)
-   ============================================================ */
-
-/* Make outlined input adornments match theme */
-.MuiOutlinedInput-notchedOutline {
-  border-color: rgba(210, 178, 107, 0.20) !important;
-}
-
-/* Table image border radius */
-.MuiTableCell-root img {
-  border-radius: 6px;
+/* ============================================================ MUI OVERRIDES */
+.MuiOutlinedInput-notchedOutline { border-color: rgba(210, 178, 107, 0.20) !important; transition: border-color 0.2s ease !important; }
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color: rgba(210, 178, 107, 0.35) !important; }
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline { border-color: rgba(210, 178, 107, 0.55) !important; }
+.MuiTableCell-root img { border-radius: 6px; }
+.MuiSkeleton-wave::after {
+  background: linear-gradient(90deg, transparent, rgba(210, 178, 107, 0.07), transparent) !important;
 }
