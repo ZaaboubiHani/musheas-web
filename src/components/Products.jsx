@@ -461,6 +461,9 @@ function PillBadge({ children }) {
         whiteSpace: "nowrap",
         lineHeight: "normal",
         flexShrink: 0,
+        maxWidth: "100px", // Fixed max width
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       }}
     >
       {children}
