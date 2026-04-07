@@ -406,7 +406,7 @@ export default function Checkout() {
           {/* Left: Form */}
           <Grid size={{ xs: 12, md: 7 }}>
             {/* Request Type */}
-            <Paper
+            {/* <Paper
               sx={cardSx}
               elevation={0}
               className="animate-fade-in-up"
@@ -450,7 +450,7 @@ export default function Checkout() {
                   </MenuItem>
                 </Select>
               </FormControl>
-            </Paper>
+            </Paper> */}
 
             {/* Origin toggle */}
             <Paper

@@ -65,7 +65,8 @@
     "howToUse": "Mode d'Emploi",
     "ingredients": "Ingrédients",
     "requestQuote": "Demander un Devis",
-     "youMightAlsoLike": "Vous pourriez aussi aimer"
+     "youMightAlsoLike": "Vous pourriez aussi aimer",
+    "buy": "Acheter"
   },
   "checkout": {
     "title": "Demander",

@@ -69,17 +69,17 @@ export default function Contact() {
 
         <Grid container spacing={3}>
           {/* Company box */}
-          <Grid size={{ xs: 12, md: 5 }}
+          {/* <Grid size={{ xs: 12, md: 5 }}
             className="animate-fade-in-up"
             sx={{ opacity: 0, animationDelay: "0.08s" }}>
             <ContactBox>
               <Typography variant="h3">{t("contact.companyTitle")}</Typography>
               <KeyValue t={t} />
             </ContactBox>
-          </Grid>
+          </Grid> */}
 
           {/* Form */}
-          <Grid size={{ xs: 12, md: 7 }}
+          <Grid size={{ xs: 12,  }}
             className="animate-fade-in-up"
             sx={{ opacity: 0, animationDelay: "0.14s" }}>
             <ContactBox>
