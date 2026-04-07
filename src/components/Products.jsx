@@ -118,9 +118,7 @@ export default function Products() {
                     onRequestSamples={() =>
                       handleRequestOnly(product, "samples")
                     }
-                    onRequestTds={() =>
-                      handleRequestOnly(product, "tds")
-                    }
+                    onRequestTds={() => handleRequestOnly(product, "tds")}
                   />
                 </Grid>
               ))}
@@ -411,24 +409,37 @@ export function ProductCard({
       )}
 
       {/* Actions */}
-      <Stack direction="row" gap={1} px={2} pb={2} mt={1.5}>
-        <CardActionButton
-          onClick={(e) => {
-            e.stopPropagation();
-            onRequestTds();
-          }}
-        >
-          {t("products.tds")}
-        </CardActionButton>
-        <CardActionButton
-          onClick={(e) => {
-            e.stopPropagation();
-            onRequestSamples();
-          }}
-        >
-          {t("products.samples")}
-        </CardActionButton>
-      </Stack>
+      {productType === "regular" ? (
+        <Stack direction="row" gap={1} px={2} pb={2} mt={1.5}>
+          <CardActionButton
+            onClick={(e) => {
+              e.stopPropagation();
+              onRequestSamples();
+            }}
+          >
+            {t("products.buy")}
+          </CardActionButton>
+        </Stack>
+      ) : (
+        <Stack direction="row" gap={1} px={2} pb={2} mt={1.5}>
+          <CardActionButton
+            onClick={(e) => {
+              e.stopPropagation();
+              onRequestTds();
+            }}
+          >
+            {t("products.tds")}
+          </CardActionButton>
+          <CardActionButton
+            onClick={(e) => {
+              e.stopPropagation();
+              onRequestSamples();
+            }}
+          >
+            {t("products.samples")}
+          </CardActionButton>
+        </Stack>
+      )}
     </Box>
   );
 }
