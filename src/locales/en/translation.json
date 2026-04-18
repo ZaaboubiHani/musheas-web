@@ -8,7 +8,7 @@
     "contact": "Contact",
     "home": "Home",
     "store": "Store",
-    "b2b": "B2B"
+    "b2b": "R&D center"
   },
   "hero": {
     "tagline": "Mycology in Biotechnology",
@@ -136,7 +136,8 @@
 
     "requestType": "Request Type",
     "samples": "Samples",
-    "tds": "TDS (Technical Data Sheet)"
+    "tds": "TDS (Technical Data Sheet)",
+    "fillAllFields": "Please fill in all required fields."
   },
   "project": {
     "title": "Project",

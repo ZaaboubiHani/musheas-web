@@ -120,7 +120,8 @@
     "position": "Poste / Fonction",
     "requestType": "Type de demande",
     "samples": "Échantillons",
-    "tds": "TDS (Fiche technique)"
+    "tds": "TDS (Fiche technique)",
+    "fillAllFields": "Veuillez remplir tous les champs requis."
   },
   "cart": {
     "title": "Mon panier",

@@ -72,18 +72,18 @@ export default function Header() {
             gap={2}
           >
             {/* Brand - Clickable to go home */}
-            <Stack 
-              direction="row" 
-              alignItems="center" 
+            <Stack
+              direction="row"
+              alignItems="center"
               gap={1}
               component={Link}
               to="/"
-              sx={{ 
-                cursor: "pointer", 
+              sx={{
+                cursor: "pointer",
                 textDecoration: "none",
                 "&:hover": {
                   opacity: 0.9,
-                }
+                },
               }}
             >
               <Logo />
@@ -274,16 +274,23 @@ export function PrimaryGoldButton({ children, ...props }) {
 }
 
 export function MobileDrawer({ open, onClose }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-
+  const isRTL = i18n.language === "ar";
   const handleNavigation = (path) => {
     navigate(path);
     onClose();
   };
 
   return (
-    <Drawer anchor="right" open={open} onClose={onClose}>
+    <Drawer
+      anchor={isRTL ? "left" : "right"}
+      open={open}
+      SlideProps={{
+        direction: "left",
+      }}
+      onClose={onClose}
+    >
       <Stack
         p={3}
         gap={2}
@@ -341,6 +348,7 @@ export function MobileDrawer({ open, onClose }) {
 // Cart Drawer Component
 function CartDrawer({ open, onClose }) {
   const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const {
     items,
     removeFromCart,
@@ -447,9 +455,12 @@ function CartDrawer({ open, onClose }) {
 
   return (
     <Drawer
-      anchor="right"
+      anchor={isRTL ? "left" : "right"}
       open={open}
       onClose={onClose}
+      SlideProps={{
+        direction: "left",
+      }}
       PaperProps={{
         sx: {
           width: { xs: "100%", sm: 400 },
