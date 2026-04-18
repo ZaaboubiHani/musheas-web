@@ -645,6 +645,11 @@ export default function ProductDetails() {
                           "&:before": {
                             display: "none",
                           },
+                          "&:hover": {
+                            backgroundColor: "rgba(210, 178, 107, 0.05)",
+                            borderRadius: "8px",
+                            transition: "background-color 0.3s ease",
+                          },
                         }}
                       >
                         <AccordionSummary
@@ -687,10 +692,15 @@ export default function ProductDetails() {
                         sx={{
                           backgroundColor: "transparent",
                           boxShadow: "none",
-                          
+                          px: 2,
                           "&:before": {
                             display: "none",
                           },
+                          "&:hover": {
+        backgroundColor: "rgba(210, 178, 107, 0.05)",
+        borderRadius: "8px",
+        transition: "background-color 0.3s ease",
+      },
                         }}
                       >
                         <AccordionSummary
@@ -782,10 +792,15 @@ export default function ProductDetails() {
 
               <Grid container spacing={{ xs: 2, sm: 3 }}>
                 {similarProducts.map((similarProduct) => (
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }} key={similarProduct._id}>
+                  <Grid
+                    size={{ xs: 12, sm: 6, md: 3 }}
+                    key={similarProduct._id}
+                  >
                     <ProductCard
                       {...similarProduct}
-                      onClick={() => navigate(`/products/${similarProduct._id}`)}
+                      onClick={() =>
+                        navigate(`/products/${similarProduct._id}`)
+                      }
                       onRequestSamples={() =>
                         handleAddToCartAndCheckout(similarProduct, "samples")
                       }
