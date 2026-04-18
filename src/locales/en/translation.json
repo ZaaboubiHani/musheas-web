@@ -138,7 +138,8 @@
 
     "requestType": "Request Type",
     "samples": "Samples",
-    "tds": "TDS (Technical Data Sheet)"
+    "tds": "TDS (Technical Data Sheet)",
+    "fillAllFields": "Please fill in all required fields."
   },
   "project": {
     "title": "Project",

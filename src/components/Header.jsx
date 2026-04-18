@@ -74,7 +74,7 @@ export default function Header() {
             py={1.5}
             gap={2}
           >
-            {/* Brand */}
+
             <Stack
               direction="row"
               alignItems="center"
@@ -84,6 +84,7 @@ export default function Header() {
               sx={{
                 cursor: "pointer",
                 textDecoration: "none",
+
                 transition: "opacity 0.2s ease",
                 "&:hover": { opacity: 0.85 },
               }}
@@ -313,9 +314,9 @@ export function PrimaryGoldButton({ children, ...props }) {
 }
 
 export function MobileDrawer({ open, onClose }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-
+  const isRTL = i18n.language === "ar";
   const handleNavigation = (path) => {
     navigate(path);
     onClose();
@@ -323,38 +324,36 @@ export function MobileDrawer({ open, onClose }) {
 
   return (
     <Drawer
-      anchor="right"
+      anchor={isRTL ? "left" : "right"}
       open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: {
-          width: 280,
-          background: "linear-gradient(180deg, rgba(8,22,24,0.98), rgba(8,22,24,0.95))",
-          backdropFilter: "blur(16px)",
-          borderLeft: "1px solid rgba(210,178,107,0.12)",
-        },
+      SlideProps={{
+        direction: "left",
       }}
+      onClose={onClose}
     >
-      <Stack p={3} gap={1} height="100%">
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
-              color: "primary.main",
-              fontSize: 18,
-              fontWeight: 700,
-            }}
-          >
-            MUSHEAS
-          </Typography>
-          <IconButton
-            onClick={onClose}
-            size="small"
-            sx={{ color: "rgba(233,242,241,0.6)", "&:hover": { color: "#d2b26b" } }}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Stack>
+      <Stack
+        p={3}
+        gap={2}
+        width={260}
+        sx={{
+          height: "100%",
+          background: `linear-gradient(
+            180deg,
+            rgba(8, 22, 24, 0.95),
+            rgba(8, 22, 24, 0.75)
+          )`,
+          backdropFilter: "blur(6px)",
+        }}
+      >
+        <Button
+          onClick={() => handleNavigation("/")}
+          sx={{
+            color: "text.primary",
+          }}
+        >
+          {t("header.home") || "Home"}
+        </Button>
+
 
         <Divider sx={{ borderColor: "rgba(210,178,107,0.1)", mb: 1 }} />
 
@@ -406,7 +405,15 @@ export function MobileDrawer({ open, onClose }) {
 
 function CartDrawer({ open, onClose }) {
   const { t, i18n } = useTranslation();
-  const { items, removeFromCart, updateQuantity, cartTotal, cartCount, clearCart } = useCart();
+  const isRTL = i18n.language === "ar";
+  const {
+    items,
+    removeFromCart,
+    updateQuantity,
+    cartTotal,
+    cartCount,
+    clearCart,
+  } = useCart();
   const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
 
@@ -469,9 +476,12 @@ function CartDrawer({ open, onClose }) {
 
   return (
     <Drawer
-      anchor="right"
+      anchor={isRTL ? "left" : "right"}
       open={open}
       onClose={onClose}
+      SlideProps={{
+        direction: "left",
+      }}
       PaperProps={{
         sx: {
           width: { xs: "100%", sm: 400 },
