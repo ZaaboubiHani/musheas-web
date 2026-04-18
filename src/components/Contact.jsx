@@ -5,8 +5,8 @@ import {
   Stack,
   Typography,
   TextField,
-  Button,
   Snackbar,
+  Alert,
 } from "@mui/material";
 import { PrimaryGoldButton, GoldButton } from "./Header";
 import { useTranslation } from "react-i18next";
@@ -18,118 +18,102 @@ export default function Contact() {
   const { createMessage } = useMessages();
   const [open, setOpen] = useState(false);
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-
-  const handleChange = (key) => (e) =>
-    setForm((p) => ({ ...p, [key]: e.target.value }));
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const handleChange = (key) => (e) => setForm((p) => ({ ...p, [key]: e.target.value }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    createMessage({
-      name: form.name,
-      email: form.email,
-      message: form.message,
-    });
+    createMessage({ name: form.name, email: form.email, message: form.message });
     setOpen(true);
-
     setForm({ name: "", email: "", message: "" });
   };
 
+  const inputSx = {
+    "& .MuiOutlinedInput-root": { borderRadius: "10px" },
+    "& .MuiInputLabel-root": { color: "rgba(233,242,241,.5)" },
+    "& .MuiOutlinedInput-input": { color: "rgba(233,242,241,.88)" },
+    "& textarea": { color: "rgba(233,242,241,.88)" },
+  };
+
   return (
-    <Box component="section" id="contact" sx={{ py: 7 }}>
+    <Box component="section" id="contact" sx={{ pb: 8 }}>
       <Container maxWidth="lg">
-        {/* Section Head */}
-        <Box mb={4}>
+        <Box
+          mb={5}
+          className="animate-fade-in-up"
+          sx={{ opacity: 0 }}
+        >
           <Typography
             component="h2"
             sx={{
-              fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
-              fontSize: 28,
+              fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, "Times New Roman", serif)',
+              fontSize: { xs: 26, md: 30 },
               letterSpacing: "0.03em",
               color: "primary.main",
             }}
           >
             {t("contact.title")}
           </Typography>
-
           <Typography
             sx={{
-              mt: 0.5,
+              mt: 0.75,
               fontSize: 14,
               maxWidth: "60ch",
-              lineHeight: 1.6,
-              color: "rgba(233,242,241,.72)",
+              lineHeight: 1.65,
+              color: "rgba(233,242,241,.65)",
             }}
           >
             {t("contact.subtitle")}
           </Typography>
         </Box>
 
-        {/* Grid */}
         <Grid container spacing={3}>
           {/* Company box */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          {/* <Grid size={{ xs: 12, md: 5 }}
+            className="animate-fade-in-up"
+            sx={{ opacity: 0, animationDelay: "0.08s" }}>
             <ContactBox>
               <Typography variant="h3">{t("contact.companyTitle")}</Typography>
-
               <KeyValue t={t} />
             </ContactBox>
-          </Grid>
+          </Grid> */}
 
-          {/* Form box */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          {/* Form */}
+          <Grid size={{ xs: 12,  }}
+            className="animate-fade-in-up"
+            sx={{ opacity: 0, animationDelay: "0.14s" }}>
             <ContactBox>
-              <Typography variant="h3"> {t("contact.formTitle")}</Typography>
-
-              <Stack component="form" spacing={2}>
-                <Grid container spacing={1.5}>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Input
-                      placeholder={t("contact.namePlaceholder")}
-                      value={form.name}
-                      onChange={handleChange("name")}
-                    />
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Input
-                      placeholder="Email"
-                      type="email"
-                      value={form.email}
-                      onChange={handleChange("email")}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Input
-                  placeholder={t("contact.messagePlaceholder")}
-                  multiline
-                  minRows={4}
-                  value={form.message}
-                  onChange={handleChange("message")}
-                />
-
-                <Stack direction="row" spacing={1.5} flexWrap="wrap">
-                  <PrimaryGoldButton onClick={handleSubmit}>
+              <Typography variant="h3">{t("contact.formTitle")}</Typography>
+              <Box component="form" onSubmit={handleSubmit}>
+                <Stack spacing={2.5}>
+                  <TextField fullWidth label={t("contact.labels.name")} value={form.name} onChange={handleChange("name")} required sx={inputSx} />
+                  <TextField fullWidth label={t("contact.labels.email")} type="email" value={form.email} onChange={handleChange("email")} required sx={inputSx} />
+                  <TextField fullWidth label={t("contact.labels.message")} multiline rows={2} value={form.message} onChange={handleChange("message")} required sx={inputSx} />
+                  <PrimaryGoldButton type="submit" sx={{ py: 1.4, borderRadius: "12px", fontSize: 14 }}>
                     {t("contact.send")}
                   </PrimaryGoldButton>
-                  <GoldButton href="#contact"> {t("contact.copy")}</GoldButton>
                 </Stack>
-              </Stack>
+              </Box>
             </ContactBox>
           </Grid>
         </Grid>
       </Container>
+
       <Snackbar
         open={open}
         autoHideDuration={4000}
         onClose={() => setOpen(false)}
-        message={t("requestDialog.snackbar.sent")}
-      />
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setOpen(false)}
+          severity="success"
+          variant="filled"
+          sx={{ backgroundColor: "rgba(210,178,107,.95)", color: "#0a1e22", fontWeight: 600 }}
+        >
+          {t("contact.sent")}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
@@ -139,23 +123,22 @@ function ContactBox({ children }) {
     <Box
       sx={{
         height: "100%",
-        p: 3,
         borderRadius: 4,
-        border: "1px solid rgba(210,178,107,.14)",
-        background:
-          "linear-gradient(180deg, rgba(15,42,46,.92), rgba(10,30,34,.92))",
-        boxShadow: "0 20px 55px rgba(0,0,0,.35)",
+        p: { xs: 2.5, md: 3.5 },
+        border: "1px solid rgba(210,178,107,.12)",
+        background: "linear-gradient(180deg, rgba(15,42,46,.85), rgba(10,30,34,.85))",
+        boxShadow: "0 16px 48px rgba(0,0,0,.3)",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        transition: "border-color 0.25s ease",
+        "&:hover": { borderColor: "rgba(210,178,107,.22)" },
         "& h3": {
-          fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
-          fontSize: 20,
-          mb: 1.5,
+          fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+          fontSize: { xs: 18, md: 20 },
           color: "primary.main",
-        },
-        "& .tiny": {
-          fontSize: 12,
-          color: "rgba(233,242,241,.62)",
-          mt: 2,
-          lineHeight: 1.6,
+          fontWeight: 700,
+          m: 0,
         },
       }}
     >
@@ -163,70 +146,28 @@ function ContactBox({ children }) {
     </Box>
   );
 }
+
 function KeyValue({ t }) {
   const rows = [
-    ["company", "MUSHEAS"],
-    ["name", "Nabil YAHIA"],
-    ["role", "R&D Manager & Business Development — Meetings Representative"],
-    ["phone", "0674861146"],
-    ["email", "musheas.lab@gmail.com"],
+    { key: t("contact.labels.company"), val: t("contact.companyValue") },
+    { key: t("contact.labels.name"), val: t("contact.nameValue") },
+    { key: t("contact.labels.role"), val: t("contact.roleValue") },
+    { key: t("contact.labels.phone"), val: t("contact.phoneValue") },
+    { key: t("contact.labels.email"), val: t("contact.emailValue") },
   ];
 
   return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: {
-          xs: "100px 1fr",
-          sm: "120px 1fr",
-          md: "150px 1fr",
-          lg: "180px 1fr",
-        },
-        gap: "10px 0px",
-        fontSize: 14,
-        color: "rgba(233,242,241,.78)",
-      }}
-    >
-      {rows.map(([k, v]) => (
-        <Box key={k} sx={{ display: "contents" }}>
-          <Typography
-            sx={{
-              fontSize: 12,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "rgba(233,242,241,.62)",
-            }}
-          >
-            {t(`contact.labels.${k}`)}
+    <Stack spacing={2}>
+      {rows.map((row, i) => (
+        <Stack key={i} spacing={0.25}>
+          <Typography sx={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(210,178,107,.7)", fontWeight: 600 }}>
+            {row.key}
           </Typography>
-          <Typography>{v}</Typography>
-        </Box>
+          <Typography sx={{ fontSize: 13, color: "rgba(233,242,241,.78)", lineHeight: 1.5 }}>
+            {row.val}
+          </Typography>
+        </Stack>
       ))}
-    </Box>
-  );
-}
-function Input(props) {
-  return (
-    <TextField
-      fullWidth
-      variant="outlined"
-      {...props}
-      sx={{
-        "& .MuiOutlinedInput-root": {
-          borderRadius: 3,
-          background: "rgba(255,255,255,.02)",
-        },
-        "& fieldset": {
-          borderColor: "rgba(210,178,107,.18)",
-        },
-        "&:hover fieldset": {
-          borderColor: "rgba(210,178,107,.35)",
-        },
-        "&.Mui-focused fieldset": {
-          borderColor: "rgba(210,178,107,.45)",
-          boxShadow: "0 0 0 4px rgba(210,178,107,.1)",
-        },
-      }}
-    />
+    </Stack>
   );
 }

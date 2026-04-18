@@ -8,7 +8,7 @@
     "contact": "Contact",
     "home": "Accueil",
     "store": "Boutique",
-    "b2b": "B2B"
+    "b2b": "Centre de R&D"
   },
   "hero": {
     "tagline": "Mycologie en biotechnologie",
@@ -33,7 +33,8 @@
         "Échantillons de 30 ml pour laboratoires et fabricants."
       ],
       ["Sur mesure", "Ratios, concentrations et branding personnalisés."]
-    ]
+    ],
+    "algerianMade": "Fabriqué en Algérie"
   },
   "products": {
     "title": "Nos produits",
@@ -64,7 +65,8 @@
     "howToUse": "Mode d'Emploi",
     "ingredients": "Ingrédients",
     "requestQuote": "Demander un Devis",
-     "youMightAlsoLike": "Vous pourriez aussi aimer"
+     "youMightAlsoLike": "Vous pourriez aussi aimer",
+    "buy": "Acheter"
   },
   "checkout": {
     "title": "Demander",
@@ -199,12 +201,18 @@
     "copy": "Copier l’email",
     "formNote": "Ce formulaire de démonstration n’envoie pas d’e-mails. Connectez-le plus tard à votre backend (Supabase, Formspree ou votre API).",
 
+    "companyValue": "Entreprise MUSHEAS",
+    "nameValue": "Nabil Yahia",
+    "roleValue": "Responsable R&D et développement commercial - Représentant des réunions",
+    "phoneValue": "0674861146",
+    "emailValue": "musheas.lab@gmail.com",
     "labels": {
       "company": "Entreprise",
       "name": "Nom",
       "role": "Fonction",
       "phone": "Téléphone",
-      "email": "Email"
+      "email": "Email",
+      "message": "Message"
     }
   },
   "footer": {

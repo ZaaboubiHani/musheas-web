@@ -687,8 +687,7 @@ export default function ProductDetails() {
                         sx={{
                           backgroundColor: "transparent",
                           boxShadow: "none",
-                          px: 2,
-
+                          
                           "&:before": {
                             display: "none",
                           },

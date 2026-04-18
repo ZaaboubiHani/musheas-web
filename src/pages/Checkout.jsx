@@ -8,7 +8,6 @@ import {
   Divider,
   Grid,
   Paper,
-  Alert,
   CircularProgress,
   IconButton,
   ToggleButton,
@@ -17,6 +16,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Chip,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useCart } from "../providers/CartProvider";
@@ -47,16 +47,10 @@ export default function Checkout() {
   const [requestOrigin, setRequestOrigin] = useState("client");
   const [requestType, setRequestType] = useState("samples");
 
-  useEffect(() => {
-    if (location.state?.requestType) {
-      setRequestType(location.state.requestType);
-    }
-    if (location.state?.requestOrigin) {
-      setRequestOrigin(location.state.requestOrigin);
-    }
-  }, [location]);
+  // Track if this is a single product checkout
+  const [singleProductCheckout, setSingleProductCheckout] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Form state
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -72,13 +66,35 @@ export default function Checkout() {
 
   const [errors, setErrors] = useState({});
 
-  // Check if cart is empty
+  // First, check if this is a single product checkout from state
   useEffect(() => {
-    if (items.length === 0 && !orderComplete) {
+    // Check if this is a single product checkout from state
+    if (location.state?.singleProduct) {
+      const product = location.state.singleProduct;
+      setSingleProductCheckout({
+        product: product,
+        quantity: location.state.quantity || 1,
+        requestType: location.state.requestType,
+        requestOrigin: location.state.requestOrigin,
+      });
+      setRequestType(location.state.requestType);
+      setRequestOrigin(location.state.requestOrigin);
+    } else if (location.state?.requestType) {
+      setRequestType(location.state.requestType);
+      setRequestOrigin(location.state.requestOrigin);
+    }
+    
+    // Mark as initialized after checking for single product
+    setIsInitialized(true);
+  }, [location]);
+
+  // Only redirect if not a single product checkout and cart is empty - wait for initialization
+  useEffect(() => {
+    if (isInitialized && !singleProductCheckout && items.length === 0 && !orderComplete) {
       showSnackbar(t("checkout.emptyCart"), "warning");
       navigate("/");
     }
-  }, [items, navigate, showSnackbar, t, orderComplete]);
+  }, [isInitialized, singleProductCheckout, items.length, navigate, showSnackbar, t, orderComplete]);
 
   const formatPrice = (value) => {
     if (!value && value !== 0) return null;
@@ -107,47 +123,52 @@ export default function Checkout() {
     return units[unitValue] || unitValue;
   };
 
-  const getItemPrice = (item) => {
-    const price =
-      item.discountPrice &&
-      item.discountPrice > 0 &&
-      item.discountPrice < item.price
-        ? item.discountPrice
-        : item.price;
-    return price;
+  const getItemPrice = (item) =>
+    item.discountPrice &&
+    item.discountPrice > 0 &&
+    item.discountPrice < item.price
+      ? item.discountPrice
+      : item.price;
+
+  const getItemTotal = (item) => getItemPrice(item) * item.quantity;
+
+  // Get items to display (either cart items or single product)
+  const getDisplayItems = () => {
+    if (singleProductCheckout) {
+      return [{
+        ...singleProductCheckout.product,
+        cartItemId: `temp-${singleProductCheckout.product._id}`,
+        quantity: singleProductCheckout.quantity,
+      }];
+    }
+    return items;
   };
 
-  const getItemTotal = (item) => {
-    const price = getItemPrice(item);
-    return price * item.quantity;
-  };
-
-  // Calculate total for clients (simple subtotal)
-  const calculateTotal = () => {
+  // Get total amount to display
+  const getDisplayTotal = () => {
+    if (singleProductCheckout && requestOrigin === "client") {
+      const item = singleProductCheckout.product;
+      const price = getItemPrice(item);
+      return price * singleProductCheckout.quantity;
+    }
     return cartTotal;
   };
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!formData.firstName) newErrors.firstName = t("checkout.required");
     if (!formData.lastName) newErrors.lastName = t("checkout.required");
-    if (!formData.email) {
-      newErrors.email = t("checkout.required");
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    if (!formData.email) newErrors.email = t("checkout.required");
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
       newErrors.email = t("checkout.invalidEmail");
-    }
     if (!formData.phone) newErrors.phone = t("checkout.required");
     if (!formData.wilaya) newErrors.wilaya = t("checkout.required");
     if (!formData.commune) newErrors.commune = t("checkout.required");
     if (!formData.address) newErrors.address = t("checkout.required");
-
-    // Company-specific validations
     if (requestOrigin === "company") {
       if (!formData.company) newErrors.company = t("checkout.required");
       if (!formData.position) newErrors.position = t("checkout.required");
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -155,43 +176,45 @@ export default function Checkout() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleRequestOriginChange = (event, newOrigin) => {
     if (newOrigin !== null) {
       setRequestOrigin(newOrigin);
-      // Clear company-specific fields when switching to client
-      if (newOrigin === "client") {
-        setFormData((prev) => ({
-          ...prev,
-          company: "",
-          position: "",
-        }));
-      }
+      if (newOrigin === "client")
+        setFormData((prev) => ({ ...prev, company: "", position: "" }));
     }
   };
 
-  const handleRequestTypeChange = (event) => {
-    setRequestType(event.target.value);
-  };
+  const handleRequestTypeChange = (event) => setRequestType(event.target.value);
 
   const handleSubmitOrder = async () => {
     if (!validateForm()) {
       showSnackbar(t("checkout.fillAllFields"), "warning");
       return;
     }
-
     setLoading(true);
-
     try {
-      // Prepare request data according to the schema
-      const requestData = {
-        type: requestType,
-        requestOrigin: requestOrigin,
-        products: items.map((item) => ({
+      let productsToSubmit;
+      
+      if (singleProductCheckout) {
+        // For single product checkout, use that product
+        const product = singleProductCheckout.product;
+        productsToSubmit = [{
+          productId: product._id,
+          name: product.name[i18n.language],
+          description: product.description?.[i18n.language] || "",
+          badge: product.badge?.[i18n.language] || "",
+          imageUrl: product.imageUrls?.[0] || "",
+          quantity: singleProductCheckout.quantity,
+          unit: product.unit,
+          price: getItemPrice(product),
+          discountPrice: product.discountPrice,
+        }];
+      } else {
+        // For cart checkout, use cart items
+        productsToSubmit = items.map((item) => ({
           productId: item._id,
           name: item.name[i18n.language],
           description: item.description?.[i18n.language] || "",
@@ -201,39 +224,31 @@ export default function Checkout() {
           unit: item.unit,
           price: getItemPrice(item),
           discountPrice: item.discountPrice,
-        })),
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        wilaya: formData.wilaya,
-        commune: formData.commune,
-        address: formData.address,
-        clientNote: formData.clientNote,
+        }));
+      }
+
+      const requestData = {
+        type: requestType,
+        requestOrigin,
+        products: productsToSubmit,
+        ...formData,
       };
-
-      // Add company-specific fields
-      if (requestOrigin === "company") {
-        requestData.position = formData.position;
-        requestData.company = formData.company;
-      }
-
-      // Add total amount only for client requests
+      
       if (requestOrigin === "client") {
-        requestData.totalAmount = calculateTotal();
+        requestData.totalAmount = getDisplayTotal();
       }
-
-      // Send to backend
+      
       const response = await createRequest(requestData);
-
-      // Get the order number from the response
       const newOrderNumber =
         response.data?._id ||
         `REQ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       setOrderNumber(newOrderNumber);
-
-      // Clear cart and show success
-      clearCart();
+      
+      // Only clear cart if this was a cart checkout
+      if (!singleProductCheckout) {
+        clearCart();
+      }
+      
       setOrderComplete(true);
       showSnackbar(t("checkout.orderSuccess"), "success");
     } catch (error) {
@@ -244,385 +259,311 @@ export default function Checkout() {
     }
   };
 
+  const cardSx = {
+    p: { xs: 2.5, sm: 3.5 },
+    mb: 3,
+    background:
+      "linear-gradient(180deg, rgba(15,46,51,.88), rgba(10,30,34,.92))",
+    borderRadius: 4,
+    border: "1px solid rgba(210,178,107,.1)",
+    boxShadow: "0 12px 40px rgba(0,0,0,.25)",
+  };
+
+  const sectionLabelSx = {
+    fontFamily: 'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+    fontSize: { xs: 16, sm: 18 },
+    fontWeight: 700,
+    color: "#d2b26b",
+    mb: 2.5,
+  };
+
+  const inputSx = {
+    "& .MuiOutlinedInput-root": { borderRadius: "10px" },
+    "& .MuiInputLabel-root": { color: "rgba(233,242,241,.55)" },
+    "& .MuiOutlinedInput-input": { color: "rgba(233,242,241,.9)" },
+  };
+
+  // Don't render anything until initialized
+  if (!isInitialized) {
+    return null; // Or a loading spinner
+  }
+
+  const displayItems = getDisplayItems();
+  const displayTotal = getDisplayTotal();
+
   if (orderComplete) {
     return (
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Paper
+      <Container maxWidth="sm" sx={{ py: 10 }}>
+        <Box
+          className="animate-fade-in-up"
           sx={{
-            p: { xs: 3, md: 5 },
+            p: { xs: 4, md: 6 },
             textAlign: "center",
             background:
               "linear-gradient(180deg, rgba(15,46,51,.92), rgba(10,30,34,.92))",
             borderRadius: 4,
+            border: "1px solid rgba(210,178,107,.14)",
+            boxShadow: "0 24px 60px rgba(0,0,0,.45)",
+            opacity: 0,
           }}
         >
-          <CheckCircleIcon
+          <Box
             sx={{
-              fontSize: 80,
-              color: "#4caf50",
-              mb: 2,
+              width: 80,
+              height: 80,
+              borderRadius: "50%",
+              background: "rgba(76,175,80,.12)",
+              border: "1.5px solid rgba(76,175,80,.3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mx: "auto",
+              mb: 3,
             }}
-          />
+          >
+            <CheckCircleIcon sx={{ fontSize: 44, color: "#4caf50" }} />
+          </Box>
           <Typography
-            variant="h4"
-            sx={{
-              fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
-              color: "#d2b26b",
-              mb: 2,
-            }}
+            sx={{ ...sectionLabelSx, fontSize: { xs: 22, sm: 26 }, mb: 1.5 }}
           >
             {t("checkout.orderConfirmed")}
           </Typography>
           <Typography
-            sx={{
-              color: "rgba(233,242,241,.8)",
-              mb: 1,
-            }}
+            sx={{ color: "rgba(233,242,241,.7)", mb: 0.5, fontSize: 14 }}
           >
-            {t("checkout.orderNumber")}: <strong>{orderNumber}</strong>
+            {t("checkout.orderNumber")}:{" "}
+            <strong style={{ color: "#d2b26b" }}>{orderNumber}</strong>
           </Typography>
           <Typography
-            sx={{
-              color: "rgba(233,242,241,.6)",
-              mb: 4,
-            }}
+            sx={{ color: "rgba(233,242,241,.5)", mb: 5, fontSize: 13 }}
           >
             {t("checkout.confirmationSent")}
           </Typography>
-          <Stack direction="row" spacing={2} justifyContent="center">
-            <Button
-              variant="outlined"
-              onClick={() => navigate("/")}
-              sx={{
-                borderColor: "rgba(210,178,107,.28)",
-                color: "text.primary",
-              }}
-            >
-              {t("checkout.continueShopping")}
-            </Button>
-          </Stack>
-        </Paper>
+          <Button
+            variant="outlined"
+            onClick={() => navigate("/")}
+            sx={{
+              borderColor: "rgba(210,178,107,.3)",
+              color: "rgba(233,242,241,.85)",
+              borderRadius: "12px",
+              px: 4,
+              py: 1.2,
+              "&:hover": {
+                borderColor: "rgba(210,178,107,.55)",
+                background: "rgba(210,178,107,.07)",
+              },
+            }}
+          >
+            {t("checkout.continueShopping")}
+          </Button>
+        </Box>
       </Container>
     );
   }
 
   return (
-    <Box
-      component="section"
-      sx={{ py: { xs: 4, sm: 6, md: 8 }, minHeight: "100vh" }}
-    >
+    <Box component="section" sx={{ py: { xs: 5, sm: 7 }, minHeight: "100vh" }}>
       <Container maxWidth="lg">
         {/* Header */}
-        <Stack direction="row" alignItems="center" spacing={2} mb={4}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={2}
+          mb={5}
+          className="animate-fade-in-up"
+          sx={{ opacity: 0 }}
+        >
           <IconButton
             onClick={() => navigate(-1)}
             sx={{
-              color: "rgba(210,178,107,.8)",
+              color: "rgba(210,178,107,.7)",
               border: "1px solid rgba(210,178,107,.18)",
+              borderRadius: "10px",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                color: "#d2b26b",
+                borderColor: "rgba(210,178,107,.4)",
+                transform: "translateX(-2px)",
+              },
             }}
           >
             <ArrowBackIcon />
           </IconButton>
           <Typography
             sx={{
-              fontFamily: 'ui-serif, Georgia, "Times New Roman", serif',
-              fontSize: { xs: 28, sm: 32, md: 36 },
+              fontFamily:
+                'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+              fontSize: { xs: 26, sm: 32, md: 36 },
               color: "primary.main",
+              fontWeight: 700,
             }}
           >
             {t("checkout.title")}
           </Typography>
         </Stack>
 
-        {/* Request Type Selector */}
-        <Paper
-          sx={{
-            p: 2,
-            mb: 4,
-            background:
-              "linear-gradient(180deg, rgba(15,46,51,.92), rgba(10,30,34,.92))",
-            borderRadius: 2,
-          }}
-        >
-          <FormControl fullWidth>
-            <InputLabel sx={{ color: "rgba(233,242,241,.7)" }}>
-              {t("checkout.requestType") || "Type de demande"}
-            </InputLabel>
-            <Select
-              value={requestType}
-              onChange={handleRequestTypeChange}
-              label={t("checkout.requestType") || "Type de demande"}
-              sx={{
-                color: "rgba(233,242,241,.9)",
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "rgba(210,178,107,.28)",
-                },
-                "&:hover .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "rgba(210,178,107,.5)",
-                },
-              }}
+        <Grid container spacing={4}>
+          {/* Left: Form */}
+          <Grid size={{ xs: 12, md: 7 }}>
+            {/* Request Type */}
+            {/* <Paper
+              sx={cardSx}
+              elevation={0}
+              className="animate-fade-in-up"
+              style={{ opacity: 0, animationDelay: "0.08s" }}
             >
-              <MenuItem value="samples">
-                <Box display="flex" alignItems="center" gap={1}>
-                  <ScienceIcon sx={{ fontSize: 20 }} />
-                  <span>{t("checkout.samples") || "Échantillons"}</span>
-                </Box>
-              </MenuItem>
-              <MenuItem value="tds">
-                <Box display="flex" alignItems="center" gap={1}>
-                  <DescriptionIcon sx={{ fontSize: 20 }} />
-                  <span>{t("checkout.tds") || "TDS (Fiche technique)"}</span>
-                </Box>
-              </MenuItem>
-            </Select>
-          </FormControl>
-        </Paper>
+              <Typography sx={sectionLabelSx}>
+                {t("checkout.requestType") || "Request Type"}
+              </Typography>
+              <FormControl fullWidth>
+                <InputLabel sx={{ color: "rgba(233,242,241,.55)" }}>
+                  {t("checkout.requestType") || "Type de demande"}
+                </InputLabel>
+                <Select
+                  value={requestType}
+                  onChange={handleRequestTypeChange}
+                  label={t("checkout.requestType") || "Type de demande"}
+                  sx={{
+                    color: "rgba(233,242,241,.9)",
+                    borderRadius: "10px",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(210,178,107,.25)",
+                    },
+                    "& .MuiSvgIcon-root": { color: "rgba(210,178,107,.6)" },
+                  }}
+                >
+                  <MenuItem value="samples">
+                    <Stack direction="row" alignItems="center" gap={1}>
+                      <ScienceIcon sx={{ fontSize: 18, color: "#d2b26b" }} />
+                      <span>{t("checkout.samples") || "Échantillons"}</span>
+                    </Stack>
+                  </MenuItem>
+                  <MenuItem value="tds">
+                    <Stack direction="row" alignItems="center" gap={1}>
+                      <DescriptionIcon
+                        sx={{ fontSize: 18, color: "#d2b26b" }}
+                      />
+                      <span>
+                        {t("checkout.tds") || "TDS (Fiche technique)"}
+                      </span>
+                    </Stack>
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Paper> */}
 
-        {/* Request Origin Toggle */}
-        <Paper
-          sx={{
-            p: 2,
-            mb: 4,
-            background:
-              "linear-gradient(180deg, rgba(15,46,51,.92), rgba(10,30,34,.92))",
-            borderRadius: 2,
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <ToggleButtonGroup
-            value={requestOrigin}
-            exclusive
-            onChange={handleRequestOriginChange}
-            aria-label="request origin"
-            sx={{
-              "& .MuiToggleButton-root": {
-                borderColor: "rgba(210,178,107,.18)",
-                color: "rgba(233,242,241,.7)",
-                px: 4,
-                py: 1,
-                "&.Mui-selected": {
-                  backgroundColor: "rgba(210,178,107,.1)",
-                  color: "#d2b26b",
-                  "&:hover": {
-                    backgroundColor: "rgba(210,178,107,.15)",
+            {/* Origin toggle */}
+            <Paper
+              sx={{ ...cardSx, display: "flex", justifyContent: "center" }}
+              elevation={0}
+              className="animate-fade-in-up"
+              style={{ opacity: 0, animationDelay: "0.13s" }}
+            >
+              <ToggleButtonGroup
+                value={requestOrigin}
+                exclusive
+                onChange={handleRequestOriginChange}
+                sx={{
+                  "& .MuiToggleButton-root": {
+                    borderColor: "rgba(210,178,107,.18)",
+                    color: "rgba(233,242,241,.65)",
+                    borderRadius: "10px !important",
+                    px: 4,
+                    py: 1.2,
+                    fontSize: 14,
+                    transition: "all 0.2s ease",
+                    "&.Mui-selected": {
+                      backgroundColor: "rgba(210,178,107,.12)",
+                      color: "#d2b26b",
+                      borderColor: "rgba(210,178,107,.35) !important",
+                      "&:hover": { backgroundColor: "rgba(210,178,107,.16)" },
+                    },
+                    "&:hover": { backgroundColor: "rgba(210,178,107,.06)" },
                   },
-                },
-              },
-            }}
-          >
-            <ToggleButton value="client">
-              <PersonIcon sx={{ mr: 1 }} />
-              {t("checkout.client") || "Client"}
-            </ToggleButton>
-            <ToggleButton value="company">
-              <BusinessIcon sx={{ mr: 1 }} />
-              {t("checkout.company") || "Company"}
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Paper>
+                }}
+              >
+                <ToggleButton value="client">
+                  <PersonIcon sx={{ mr: 1, fontSize: 18 }} />
+                  {t("checkout.client") || "Client"}
+                </ToggleButton>
+                <ToggleButton value="company">
+                  <BusinessIcon sx={{ mr: 1, fontSize: 18 }} />
+                  {t("checkout.company") || "Company"}
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Paper>
 
-        {/* Cart Items Section */}
-        <Paper
-          sx={{
-            p: { xs: 2, sm: 3 },
-            mb: 4,
-            background:
-              "linear-gradient(180deg, rgba(15,46,51,.92), rgba(10,30,34,.92))",
-            borderRadius: 2,
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              color: "#d2b26b",
-              fontWeight: 600,
-              mb: 2,
-            }}
-          >
-            {t("checkout.orderSummary")}
-          </Typography>
-
-          <Stack spacing={2}>
-            {items.map((item) => (
-              <Stack key={item.cartItemId} direction="row" spacing={2}>
-                {item.imageUrls?.[0] && (
-                  <Box
-                    component="img"
-                    src={item.imageUrls[0]}
-                    alt={item.name.en}
-                    sx={{
-                      width: 60,
-                      height: 60,
-                      objectFit: "contain",
-                      borderRadius: 1,
-                      backgroundColor: "rgba(0,0,0,.2)",
-                    }}
-                  />
-                )}
-                <Box sx={{ flex: 1 }}>
-                  <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
-                    {item.name[i18n.language]}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: "rgba(233,242,241,.6)" }}
-                  >
-                    {item.quantity} × {getUnitLabel(item.unit)}
-                  </Typography>
-                </Box>
-                {requestOrigin === "client" && (
-                  <Typography sx={{ color: "#d2b26b", fontWeight: 500 }}>
-                    {formatPrice(getItemTotal(item))}
-                  </Typography>
-                )}
-              </Stack>
-            ))}
-          </Stack>
-
-          {/* Price Summary - Only for clients */}
-          {requestOrigin === "client" && (
-            <>
-              <Divider sx={{ borderColor: "rgba(210,178,107,.15)", my: 2 }} />
-              <Stack spacing={1.5}>
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
-                    {t("checkout.total")}
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: 20, fontWeight: "bold", color: "#d2b26b" }}
-                  >
-                    {formatPrice(calculateTotal())}
-                  </Typography>
-                </Stack>
-              </Stack>
-            </>
-          )}
-        </Paper>
-
-        {/* Form Section */}
-        <Paper
-          sx={{
-            p: { xs: 2, sm: 3 },
-            background:
-              "linear-gradient(180deg, rgba(15,46,51,.92), rgba(10,30,34,.92))",
-            borderRadius: 2,
-          }}
-        >
-          <Stack spacing={3}>
-            <Typography
-              variant="h6"
-              sx={{
-                color: "#d2b26b",
-                fontWeight: 600,
-              }}
+            {/* Contact info */}
+            <Paper
+              sx={cardSx}
+              elevation={0}
+              className="animate-fade-in-up"
+              style={{ opacity: 0, animationDelay: "0.18s" }}
             >
-              {t("checkout.contactInfo")}
-            </Typography>
-
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label={t("checkout.firstName")}
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  error={!!errors.firstName}
-                  helperText={errors.firstName}
-                  required
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label={t("checkout.lastName")}
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  error={!!errors.lastName}
-                  helperText={errors.lastName}
-                  required
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label={t("checkout.email")}
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  error={!!errors.email}
-                  helperText={errors.email}
-                  required
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  fullWidth
-                  label={t("checkout.phone")}
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  error={!!errors.phone}
-                  helperText={errors.phone}
-                  required
-                />
-              </Grid>
-
-              {/* Company-specific fields */}
-              {requestOrigin === "company" && (
-                <>
-                  <Grid size={{ xs: 12, sm: 6 }}>
+              <Typography sx={sectionLabelSx}>
+                {t("checkout.contactInfo")}
+              </Typography>
+              <Grid container spacing={2}>
+                {[
+                  { name: "firstName", label: t("checkout.firstName"), xs: 6 },
+                  { name: "lastName", label: t("checkout.lastName"), xs: 6 },
+                  {
+                    name: "email",
+                    label: t("checkout.email"),
+                    xs: 6,
+                    type: "email",
+                  },
+                  { name: "phone", label: t("checkout.phone"), xs: 6 },
+                  ...(requestOrigin === "company"
+                    ? [
+                        {
+                          name: "company",
+                          label: t("checkout.company"),
+                          xs: 6,
+                        },
+                        {
+                          name: "position",
+                          label: t("checkout.position"),
+                          xs: 6,
+                        },
+                      ]
+                    : []),
+                ].map(({ name, label, xs, type = "text" }) => (
+                  <Grid key={name} size={{ xs: 12, sm: xs }}>
                     <TextField
                       fullWidth
-                      label={t("checkout.company")}
-                      name="company"
-                      value={formData.company}
+                      type={type}
+                      label={label}
+                      name={name}
+                      value={formData[name]}
                       onChange={handleInputChange}
-                      error={!!errors.company}
-                      helperText={errors.company}
+                      error={!!errors[name]}
+                      helperText={errors[name]}
                       required
+                      sx={inputSx}
                     />
                   </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                      fullWidth
-                      label={t("checkout.position")}
-                      name="position"
-                      value={formData.position}
-                      onChange={handleInputChange}
-                      error={!!errors.position}
-                      helperText={errors.position}
-                      required
-                    />
-                  </Grid>
-                </>
-              )}
-            </Grid>
+                ))}
+              </Grid>
+            </Paper>
 
-            <Typography
-              variant="h6"
-              sx={{
-                color: "#d2b26b",
-                fontWeight: 600,
-                mt: 2,
-              }}
+            {/* Shipping */}
+            <Paper
+              sx={cardSx}
+              elevation={0}
+              className="animate-fade-in-up"
+              style={{ opacity: 0, animationDelay: "0.23s" }}
             >
-              {t("checkout.shippingAddress")}
-            </Typography>
-
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12 }}>
+              <Typography sx={sectionLabelSx}>
+                {t("checkout.shippingAddress")}
+              </Typography>
+              <Stack spacing={2}>
                 <WilayaSelect
                   value={formData.wilaya}
                   onChange={handleInputChange}
                   error={!!errors.wilaya}
                   helperText={errors.wilaya}
                 />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
                 <CommuneSelect
                   wilaya={wilayas.find((w) => w.name === formData.wilaya)}
                   value={formData.commune}
@@ -630,8 +571,6 @@ export default function Checkout() {
                   error={!!errors.commune}
                   helperText={errors.commune}
                 />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
                 <TextField
                   fullWidth
                   label={t("checkout.address")}
@@ -641,45 +580,230 @@ export default function Checkout() {
                   error={!!errors.address}
                   helperText={errors.address}
                   required
+                  sx={inputSx}
                 />
-              </Grid>
-            </Grid>
-
-            <TextField
-              fullWidth
-              label={t("checkout.orderNotes")}
-              name="clientNote"
-              multiline
-              rows={3}
-              value={formData.clientNote}
-              onChange={handleInputChange}
-              placeholder={t("checkout.notesPlaceholder")}
-            />
+                <TextField
+                  fullWidth
+                  label={t("checkout.orderNotes")}
+                  name="clientNote"
+                  multiline
+                  rows={3}
+                  value={formData.clientNote}
+                  onChange={handleInputChange}
+                  placeholder={t("checkout.notesPlaceholder")}
+                  sx={inputSx}
+                />
+              </Stack>
+            </Paper>
 
             <Button
               variant="contained"
+              fullWidth
               onClick={handleSubmitOrder}
               disabled={loading}
+              className="animate-fade-in-up"
               sx={{
-                mt: 2,
-                backgroundColor: "#d2b26b",
+                background: "linear-gradient(135deg, #d2b26b, #b8903f)",
                 color: "#0a1e22",
-                py: 1.5,
-                fontSize: 16,
-                fontWeight: 600,
+                py: 1.8,
+                fontSize: 15,
+                fontWeight: 700,
+                borderRadius: "12px",
+                opacity: 0,
+                animationDelay: "0.28s",
+                boxShadow: "0 6px 24px rgba(210,178,107,.25)",
+                transition: "all 0.22s ease",
                 "&:hover": {
-                  backgroundColor: "#c4a25a",
+                  background: "linear-gradient(135deg, #dbc07a, #c49948)",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 10px 32px rgba(210,178,107,.35)",
+                },
+                "&.Mui-disabled": {
+                  background: "rgba(210,178,107,.25)",
+                  color: "rgba(10,30,34,.4)",
                 },
               }}
             >
               {loading ? (
-                <CircularProgress size={24} />
+                <CircularProgress size={22} sx={{ color: "#0a1e22" }} />
               ) : (
                 t("checkout.placeOrder")
               )}
             </Button>
-          </Stack>
-        </Paper>
+          </Grid>
+
+          {/* Right: Summary */}
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Box
+              className="animate-fade-in-up"
+              sx={{
+                ...cardSx,
+                mb: 0,
+                position: { md: "sticky" },
+                top: { md: 90 },
+                opacity: 0,
+                animationDelay: "0.1s",
+              }}
+            >
+              <Typography sx={sectionLabelSx}>
+                {t("checkout.orderSummary")}
+              </Typography>
+              <Stack
+                spacing={2.5}
+                divider={
+                  <Divider sx={{ borderColor: "rgba(210,178,107,.08)" }} />
+                }
+              >
+                {displayItems.map((item) => (
+                  <Stack
+                    key={item.cartItemId || item._id}
+                    direction="row"
+                    spacing={2}
+                    alignItems="flex-start"
+                  >
+                    {item.imageUrls?.[0] && (
+                      <Box
+                        component="img"
+                        src={item.imageUrls[0]}
+                        alt={item.name.en}
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          objectFit: "contain",
+                          borderRadius: "10px",
+                          backgroundColor: "rgba(255,255,255,.04)",
+                          border: "1px solid rgba(210,178,107,.1)",
+                          flexShrink: 0,
+                        }}
+                      />
+                    )}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          fontWeight: 500,
+                          color: "rgba(233,242,241,.85)",
+                          lineHeight: 1.35,
+                        }}
+                      >
+                        {item.name[i18n.language]}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: 12,
+                          color: "rgba(233,242,241,.45)",
+                          mt: 0.25,
+                        }}
+                      >
+                        {item.quantity} × {getUnitLabel(item.unit)}
+                      </Typography>
+                    </Box>
+                    {requestOrigin === "client" && (
+                      <Typography
+                        sx={{
+                          fontSize: 14,
+                          color: "#d2b26b",
+                          fontWeight: 600,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {formatPrice(getItemTotal(item))}
+                      </Typography>
+                    )}
+                  </Stack>
+                ))}
+              </Stack>
+
+              {requestOrigin === "client" && displayItems.length > 0 && (
+                <>
+                  <Divider
+                    sx={{ borderColor: "rgba(210,178,107,.12)", my: 2.5 }}
+                  />
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: 15,
+                        fontWeight: 500,
+                        color: "rgba(233,242,241,.75)",
+                      }}
+                    >
+                      {t("checkout.total")}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 22,
+                        fontWeight: 700,
+                        color: "#d2b26b",
+                        fontFamily:
+                          'var(--font-serif, "Literata", ui-serif, Georgia, serif)',
+                      }}
+                    >
+                      {formatPrice(displayTotal)}
+                    </Typography>
+                  </Stack>
+                </>
+              )}
+
+              {/* Request type indicator */}
+              <Box
+                sx={{
+                  mt: 2.5,
+                  pt: 2.5,
+                  borderTop: "1px solid rgba(210,178,107,.08)",
+                }}
+              >
+                <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
+                  <Chip
+                    icon={
+                      requestType === "samples" ? (
+                        <ScienceIcon sx={{ fontSize: 14 }} />
+                      ) : (
+                        <DescriptionIcon sx={{ fontSize: 14 }} />
+                      )
+                    }
+                    label={
+                      requestType === "samples"
+                        ? t("checkout.samples") || "Samples"
+                        : t("checkout.tds") || "TDS"
+                    }
+                    size="small"
+                    sx={{
+                      background: "rgba(210,178,107,.09)",
+                      color: "#d2b26b",
+                      border: "1px solid rgba(210,178,107,.18)",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Chip
+                    icon={
+                      requestOrigin === "company" ? (
+                        <BusinessIcon sx={{ fontSize: 14 }} />
+                      ) : (
+                        <PersonIcon sx={{ fontSize: 14 }} />
+                      )
+                    }
+                    label={
+                      requestOrigin === "company"
+                        ? t("checkout.company") || "Company"
+                        : t("checkout.client") || "Client"
+                    }
+                    size="small"
+                    sx={{
+                      background: "rgba(210,178,107,.09)",
+                      color: "#d2b26b",
+                      border: "1px solid rgba(210,178,107,.18)",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </Stack>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
       </Container>
     </Box>
   );
